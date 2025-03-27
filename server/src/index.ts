@@ -9,7 +9,21 @@ type Bindings = {
 const app = new Hono<{ Bindings: Bindings }>();
 app.route("/api/v1", rootRouter);
 app.get("/", async (c) => {
-  return c.json({ msg: "hello hono" });
+  // const prisma = new PrismaClient({
+  //   datasourceUrl: c.env.DATABASE_URL,
+  // }).$extends(withAccelerate());
+  // const user = await prisma.user.create({
+  //   data: {
+  //     email: "abc@example.com",
+  //     username: "helloabc",
+  //     password: "abchello",
+  //   },
+  // });
+  // if (!user) {
+  //   c.json({ msg: "sad" }, 401);
+  // }
+  // return c.json({ user });
+  return c.text("hello hono");
 });
 
 export default app;
