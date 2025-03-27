@@ -13,3 +13,23 @@ datasource db {
   url      = env("DATABASE_URL")
   directUrl = env("DIRECT_DATABASE_URL")
 }
+model User {
+ id          Int      @id @default(autoincrement())
+ createdAt   DateTime @default(now())
+ email       String   @unique @db.VarChar(128)
+ username    String   @unique @db.VarChar(128)
+ password    String   @db.VarChar(128)
+ blogs       Blog[]
+
+}
+
+model Blog {
+id           Int      @id @default(autoincrement())
+createdAt    DateTime @default(now())
+title        String   @unique @db.VarChar(255)
+content      String   @unique @db.VarChar(2500)
+userId       Int 
+isDraft      Boolean
+author       User     @relation(fields: [userId], references: [id])
+
+}
