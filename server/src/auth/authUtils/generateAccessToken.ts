@@ -5,6 +5,6 @@ export const generateAccessToken = async (
   payLoad: AccessTokenPayload,
   secret: string
 ) => {
-  const token = await sign(payLoad, secret);
-  return token;
+  const accessToken = await sign(payLoad, secret);
+  return accessToken;
 };
