@@ -14,13 +14,13 @@ datasource db {
   directUrl = env("DIRECT_DATABASE_URL")
 }
 model User {
- id          Int      @id @default(autoincrement())
- createdAt   DateTime @default(now())
- email       String   @unique @db.VarChar(128)
- username    String   @unique @db.VarChar(128)
- password    String   @db.VarChar(128)
- blogs       Blog[]
-
+ id               Int      @id @default(autoincrement())
+ createdAt        DateTime @default(now())
+ email            String   @unique @db.VarChar(128)
+ username         String   @unique @db.VarChar(128)
+ password         String   @db.VarChar(128)
+ blogs            Blog[]
+ refreshTokens    RefreshToken[]
 }
 
 model Blog {
@@ -31,5 +31,19 @@ content      String   @unique @db.VarChar(2500)
 userId       Int 
 isDraft      Boolean
 author       User     @relation(fields: [userId], references: [id])
+
+}
+
+model RefreshToken{
+  id           Int      @id @default(autoincrement())
+  jti          String   @unique @db.VarChar(16)
+  createdAt    DateTime @default(now())
+  token        String   @unique @db.VarChar(60)
+  deviceId     String   @unique @db.VarChar(36)  
+  userId       Int    
+  user         User     @relation(fields: [userId], references: [id]) 
+  
+
+
 
 }
