@@ -1,11 +1,18 @@
 import { Hono } from "hono";
 import { rootRouter } from "./rootRouter/rootRouter";
+import { PrismaClient } from "@prisma/client/edge";
+import { withAccelerate } from "@prisma/extension-accelerate";
+
 import { prismaMiddleware } from "./prismaMiddleware/prismaMiddleware";
+const createPrismaClient = () => {
+  return new PrismaClient().$extends(withAccelerate());
+};
+export type ExtendedPrismaClient = ReturnType<typeof createPrismaClient>;
 export interface Bindings {
   DATABASE_URL: string;
 }
 export interface Variables {
-  prisma: any;
+  prisma: ExtendedPrismaClient;
 }
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
@@ -17,8 +24,8 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 //   c.set("prisma", prisma);
 //   await next();
 // });
-//this is useless, too many type errors, hence just used the
-
+// this is useless, too many type errors, hence just used the
+// basically when you create the prisma variable as new prismaClient, the types are not even extendable with the clients , but i have not tried with edge yet, but it turns into something dynamicClient something, the user and blog everything related to your database model gets attached to it.
 app.use(prismaMiddleware);
 app.route("/api/v1", rootRouter);
 app.get("/", async (c) => {
