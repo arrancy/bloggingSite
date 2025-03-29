@@ -16,7 +16,7 @@ datasource db {
 model User {
  id               Int      @id @default(autoincrement())
  createdAt        DateTime @default(now())
- email            String   @unique @db.VarChar(128)
+ email            String   @unique @db.VarChar(320)
  username         String   @unique @db.VarChar(128)
  password         String   @db.VarChar(128)
  blogs            Blog[]
@@ -42,7 +42,7 @@ model RefreshToken{
   deviceId     String   @unique @db.VarChar(36)  
   userId       Int    
   user         User     @relation(fields: [userId], references: [id]) 
-  
+
 
 
 
