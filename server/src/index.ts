@@ -10,6 +10,8 @@ const createPrismaClient = () => {
 export type ExtendedPrismaClient = ReturnType<typeof createPrismaClient>;
 export interface Bindings {
   DATABASE_URL: string;
+  RESEND_API_KEY: string;
+  ACCESS_TOKEN_SECRET: string;
 }
 export interface Variables {
   prisma: ExtendedPrismaClient;
