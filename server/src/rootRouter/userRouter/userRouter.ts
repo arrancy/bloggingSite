@@ -7,6 +7,11 @@ import z from "zod";
 import bcrypt from "bcrypt-edge";
 import { Resend } from "resend";
 import { generateAccessToken } from "../../auth/authUtils/generateAccessToken";
+import { generateJti } from "../../auth/authUtils/generateJti";
+import { generateRefreshToken } from "../../auth/authUtils/generateRefreshToken";
+import { setCookie } from "hono/cookie";
+import { accessTokenCookieOptions } from "../../auth/cookieOptions/accessTokenCookieOptions";
+import { refreshTokenCookieOptions } from "../../auth/cookieOptions/refreshTokenCookieOptions";
 interface Env extends Variables, Bindings {
   Bindings: Bindings;
   Variables: Variables;
@@ -51,6 +56,12 @@ userRouter.post("/signup", async (c) => {
         },
       },
     });
+    if (!userCreated) {
+      return c.json(
+        { msg: "internal server error" },
+        StatusCodes.internalServerError
+      );
+    }
     const verificationUrl = `http://localhost:8787?verificationToken=${verificationToken}`;
 
     //logic to redirect the user to frontend page where it says to check email to verify it
@@ -63,7 +74,7 @@ userRouter.post("/signup", async (c) => {
       subject: "verify your email",
       html: `<p>to verify your email, click <a href=${verificationUrl}>here</a></p>`,
     });
-
+    console.log(data);
     if (error) {
       return c.json(
         { msg: "internal server error" },
@@ -83,43 +94,75 @@ userRouter.post("/signup", async (c) => {
   // });
 });
 userRouter.get("/verify", async (c) => {
-  const verification_token = c.req.query("verificationToken");
-  if (!verification_token) {
-    return c.json({ msg: "bad request" }, StatusCodes.invalidInputs);
-  }
-  const { prisma } = c.var;
-  const userExists = await prisma.user.findFirst({
-    where: { verification_token: { token: verification_token } },
-  });
-  if (!userExists) {
-    return c.json(
-      { msg: "invalid verification token" },
-      StatusCodes.unauthenticad
+  try {
+    const verification_token = c.req.query("verificationToken");
+    if (!verification_token) {
+      return c.json({ msg: "bad request" }, StatusCodes.invalidInputs);
+    }
+    const { prisma } = c.var;
+    const userExists = await prisma.user.findFirst({
+      where: { verification_token: { token: verification_token } },
+    });
+    if (!userExists) {
+      return c.json(
+        { msg: "invalid verification token" },
+        StatusCodes.unauthenticad
+      );
+    }
+    const { id, username } = userExists;
+    const verifyUser = await prisma.user.update({
+      where: { id },
+      data: { verified: true },
+    });
+    if (!verifyUser) {
+      return c.json(
+        { msg: "internal server error" },
+        StatusCodes.internalServerError
+      );
+    }
+    const { ACCESS_TOKEN_SECRET } = c.env;
+    const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
+
+    const accessTokenPayload = {
+      id,
+      username,
+      exp,
+    };
+    const accessToken = await generateAccessToken(
+      accessTokenPayload,
+      ACCESS_TOKEN_SECRET
     );
-  }
-  const { id, username } = userExists;
-  const verifyUser = await prisma.user.update({
-    where: { id },
-    data: { verified: true },
-  });
-  if (!verifyUser) {
+    const refreshTokenJti = generateJti();
+    const refreshExp = exp * 7;
+    const refreshTokenPayload = {
+      userId: id,
+      exp: refreshExp,
+      jti: refreshTokenJti,
+    };
+    const { REFRESH_TOKEN_SECRET } = c.env;
+    const refreshToken = await generateRefreshToken(
+      refreshTokenPayload,
+      REFRESH_TOKEN_SECRET
+    );
+    const refreshTokenCreated = await prisma.refreshToken.create({
+      data: { jti: refreshTokenJti, token: refreshToken, userId: id },
+    });
+    if (!refreshTokenCreated) {
+      return c.json(
+        { msg: "internal server error" },
+        StatusCodes.internalServerError
+      );
+    }
+
+    setCookie(c, "access_token", accessToken, accessTokenCookieOptions);
+    setCookie(c, "refreshToken", refreshToken, refreshTokenCookieOptions);
+    return c.json({ msg: "email verified successfully" }, 200);
+  } catch (error) {
     return c.json(
       { msg: "internal server error" },
       StatusCodes.internalServerError
     );
   }
-  const { ACCESS_TOKEN_SECRET } = c.env;
-  const exp = Math.floor(Date.now() / 1000 + 60 * 60 * 24);
-
-  const accessTokenPayload = {
-    id,
-    username,
-    exp,
-  };
-  const accessToken = generateAccessToken(
-    accessTokenPayload,
-    ACCESS_TOKEN_SECRET
-  );
 });
 userRouter.get("/protected", (c) => {
   return c.json({ msg: "hello hono" });

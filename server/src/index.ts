@@ -12,6 +12,7 @@ export interface Bindings {
   DATABASE_URL: string;
   RESEND_API_KEY: string;
   ACCESS_TOKEN_SECRET: string;
+  REFRESH_TOKEN_SECRET: string;
 }
 export interface Variables {
   prisma: ExtendedPrismaClient;

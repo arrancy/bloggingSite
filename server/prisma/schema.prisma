@@ -41,7 +41,6 @@ model RefreshToken{
   jti          String   @unique @db.VarChar(16)
   createdAt    DateTime @default(now())
   token        String   @unique @db.VarChar(60)
-  deviceId     String   @unique @db.VarChar(36)  
   userId       Int    
   user         User     @relation(fields: [userId], references: [id]) 
 }

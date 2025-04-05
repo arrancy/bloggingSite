@@ -1,8 +1,7 @@
 import { JWTPayload } from "hono/utils/jwt/types";
 
 export interface RefreshTokenPayload extends JWTPayload {
-  id: number;
+  userId: number;
   jti: string;
-  deviceId: string;
   exp: number;
 }
