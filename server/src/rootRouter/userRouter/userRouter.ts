@@ -12,6 +12,7 @@ import { generateRefreshToken } from "../../auth/authUtils/generateRefreshToken"
 import { setCookie } from "hono/cookie";
 import { accessTokenCookieOptions } from "../../auth/cookieOptions/accessTokenCookieOptions";
 import { refreshTokenCookieOptions } from "../../auth/cookieOptions/refreshTokenCookieOptions";
+import { authMiddleware } from "../../auth/authMiddleWare";
 interface Env extends Variables, Bindings {
   Bindings: Bindings;
   Variables: Variables;
@@ -164,6 +165,6 @@ userRouter.get("/verify", async (c) => {
     );
   }
 });
-userRouter.get("/protected", (c) => {
+userRouter.get("/protected", authMiddleware, (c) => {
   return c.json({ msg: "hello hono" });
 });
