@@ -13,6 +13,7 @@ import { setCookie } from "hono/cookie";
 import { accessTokenCookieOptions } from "../../auth/cookieOptions/accessTokenCookieOptions";
 import { refreshTokenCookieOptions } from "../../auth/cookieOptions/refreshTokenCookieOptions";
 import { authMiddleware } from "../../auth/authMiddleWare";
+import { StatusCodes } from "../../enums/enums";
 interface Env extends Variables, Bindings {
   Bindings: Bindings;
   Variables: Variables;
@@ -58,12 +59,13 @@ userRouter.post("/signup", async (c) => {
       },
     });
     if (!userCreated) {
+      console.log("we are here");
       return c.json(
         { msg: "internal server error" },
         StatusCodes.internalServerError
       );
     }
-    const verificationUrl = `http://localhost:8787?verificationToken=${verificationToken}`;
+    const verificationUrl = `http://localhost:8787/api/v1/user/verify?verificationToken=${verificationToken}`;
 
     //logic to redirect the user to frontend page where it says to check email to verify it
     //signin will check if the person is verified or not, only then a token will be issued
@@ -78,11 +80,11 @@ userRouter.post("/signup", async (c) => {
     console.log(data);
     if (error) {
       return c.json(
-        { msg: "internal server error" },
+        { msg: "could not send verification email : " + error.message },
         StatusCodes.internalServerError
       );
     }
-    return c.redirect("http://myfrontendUrl.abc/emailPage");
+    return c.redirect("http://google.com");
   } catch (error) {
     return c.json(
       { msg: "internal server error" },
@@ -95,27 +97,37 @@ userRouter.post("/signup", async (c) => {
   // });
 });
 userRouter.get("/verify", async (c) => {
+  console.log("reached request");
   try {
     const verification_token = c.req.query("verificationToken");
     if (!verification_token) {
       return c.json({ msg: "bad request" }, StatusCodes.invalidInputs);
     }
     const { prisma } = c.var;
+    console.log("reached here 2");
     const userExists = await prisma.user.findFirst({
       where: { verification_token: { token: verification_token } },
     });
+    console.log("reached here 3");
+
     if (!userExists) {
+      console.log("reached here 4");
+
       return c.json(
         { msg: "invalid verification token" },
         StatusCodes.unauthenticad
       );
     }
     const { id, username } = userExists;
+    console.log(userExists);
     const verifyUser = await prisma.user.update({
       where: { id },
       data: { verified: true },
     });
+    console.log("reached here 5");
+    console.log(verifyUser);
     if (!verifyUser) {
+      console.log("cant check verified true");
       return c.json(
         { msg: "internal server error" },
         StatusCodes.internalServerError
@@ -145,10 +157,13 @@ userRouter.get("/verify", async (c) => {
       refreshTokenPayload,
       REFRESH_TOKEN_SECRET
     );
+    console.log(accessToken + ",," + refreshToken);
     const refreshTokenCreated = await prisma.refreshToken.create({
       data: { jti: refreshTokenJti, token: refreshToken, userId: id },
     });
+    console.log(refreshTokenCreated);
     if (!refreshTokenCreated) {
+      console.log("reached here 6");
       return c.json(
         { msg: "internal server error" },
         StatusCodes.internalServerError
@@ -159,6 +174,9 @@ userRouter.get("/verify", async (c) => {
     setCookie(c, "refreshToken", refreshToken, refreshTokenCookieOptions);
     return c.json({ msg: "email verified successfully" }, 200);
   } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+    }
     return c.json(
       { msg: "internal server error" },
       StatusCodes.internalServerError

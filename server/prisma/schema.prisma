@@ -38,9 +38,9 @@ author       User     @relation(fields: [userId], references: [id])
 
 model RefreshToken{
   id           Int      @id @default(autoincrement())
-  jti          String   @unique @db.VarChar(16)
+  jti          String   @unique @db.VarChar(30)
   createdAt    DateTime @default(now())
-  token        String   @unique @db.VarChar(60)
+  token        String   @unique @db.VarChar(1000)
   userId       Int    
   user         User     @relation(fields: [userId], references: [id]) 
 }

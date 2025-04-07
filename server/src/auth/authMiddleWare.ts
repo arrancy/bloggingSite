@@ -2,6 +2,7 @@ import { createMiddleware } from "hono/factory";
 import { Bindings, Variables } from "..";
 import { verify } from "hono/jwt";
 import { AccessTokenPayload } from "./authTypes/AccessTokenPayload";
+import { StatusCodes } from "../enums/enums";
 
 export const authMiddleware = createMiddleware<{
   Bindings: Bindings;
