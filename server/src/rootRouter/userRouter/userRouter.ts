@@ -31,19 +31,22 @@ userRouter.post("/signup", async (c) => {
     if (!success) {
       return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
     }
+    const { email, username } = reqBody;
     const { prisma } = c.var;
     const userExists = await prisma.user.findFirst({
-      where: { email: reqBody.email },
+      where: { OR: [{ email }, { username }] },
     });
     if (userExists) {
-      return c.json({ msg: "user already exists" }, StatusCodes.userExists);
+      return c.json(
+        { msg: "user already exists, email or username already taken" },
+        StatusCodes.userExists
+      );
     }
     const verificationToken = generateVerificationToken();
     const tommorowTime = new Date();
     tommorowTime.setDate(tommorowTime.getDate() + 1);
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(reqBody.password, salt);
-    const { email, username } = reqBody;
 
     const userCreated = await prisma.user.create({
       data: {
@@ -118,6 +121,26 @@ userRouter.get("/verify", async (c) => {
         StatusCodes.unauthenticad
       );
     }
+    const verificationTokenValid = await prisma.verification_token.findFirst({
+      where: { token: verification_token },
+    });
+    if (!verificationTokenValid) {
+      return c.json(
+        { msg: "invalid verification token" },
+        StatusCodes.invalidInputs
+      );
+    }
+    const expiryDate = verificationTokenValid.expiresAt;
+    const expiryDateMilliseconds = new Date(expiryDate).getTime();
+    const currentDateMilliseconds = new Date().getTime();
+    const dateDifference = currentDateMilliseconds - expiryDateMilliseconds; //in js date objects can be subracted directly but TS was complaining so i had to convert them to millisecond numbers using getTime() method
+    if (dateDifference >= 0) {
+      return c.json(
+        { msg: "verification token expired" },
+        StatusCodes.unauthenticad
+      );
+    }
+
     const { id, username } = userExists;
     console.log(userExists);
     const verifyUser = await prisma.user.update({
