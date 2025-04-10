@@ -14,6 +14,7 @@ import { accessTokenCookieOptions } from "../../auth/cookieOptions/accessTokenCo
 import { refreshTokenCookieOptions } from "../../auth/cookieOptions/refreshTokenCookieOptions";
 import { authMiddleware } from "../../auth/authMiddleWare";
 import { StatusCodes } from "../../enums/enums";
+import { newVerificationTokenSchema } from "../../zodTypes/newVerificationTokenSchema";
 interface Env extends Variables, Bindings {
   Bindings: Bindings;
   Variables: Variables;
@@ -39,7 +40,7 @@ userRouter.post("/signup", async (c) => {
     if (userExists) {
       return c.json(
         { msg: "user already exists, email or username already taken" },
-        StatusCodes.userExists
+        StatusCodes.conflict
       );
     }
     const verificationToken = generateVerificationToken();
@@ -98,6 +99,37 @@ userRouter.post("/signup", async (c) => {
   // const verificationTokenAdded = await prisma.verification_token.create({
   //   data: { token: verificationToken, userId: userCreated.id },
   // });
+});
+userRouter.get("/newVerificationToken", async (c) => {
+  type ReqBody = z.infer<typeof newVerificationTokenSchema>;
+  const reqBody: ReqBody = await c.req.json();
+  const { success } = newVerificationTokenSchema.safeParse(reqBody);
+  if (!success) {
+    return c.json({ msg: "invalid email" }, StatusCodes.invalidInputs);
+  }
+  const { email } = reqBody;
+
+  const { prisma } = c.var;
+  const userExists = await prisma.user.findFirst({ where: { email } });
+  if (!userExists) {
+    return c.json({ msg: "please sign up" }, StatusCodes.notFound);
+  }
+  const { verified, id } = userExists;
+  if (verified) {
+    return c.json({ msg: "email is already verified" }, StatusCodes.conflict);
+  }
+  const expiredToken = await prisma.verification_token.findFirst({
+    where: { userId: id },
+  });
+  if (!expiredToken) {
+    return;
+  }
+  const { expiresAt } = expiredToken;
+  const currentTime = new Date().getTime();
+  const expiryDate = new Date(expiresAt).getTime();
+  const fifteenMinutes = -1 * (1000 * 60 * 15);
+
+  return c.text("");
 });
 userRouter.get("/verify", async (c) => {
   console.log("reached request");
