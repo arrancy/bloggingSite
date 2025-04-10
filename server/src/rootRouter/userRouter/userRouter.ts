@@ -79,7 +79,7 @@ userRouter.post("/signup", async (c) => {
       from: "no-reply@verify.writeintelligent.blog",
       to: email,
       subject: "verify your email",
-      html: `<p>to verify your email, click <a href=${verificationUrl}>here</a></p>`,
+      html: `<p>to verify your email for writeintelligent.blog, click <a href=${verificationUrl}>here</a></p>`,
     });
     console.log(data);
     if (error) {
@@ -124,12 +124,69 @@ userRouter.get("/newVerificationToken", async (c) => {
   if (!expiredToken) {
     return;
   }
-  const { expiresAt } = expiredToken;
+  const { expiresAt, token } = expiredToken;
   const currentTime = new Date().getTime();
   const expiryDate = new Date(expiresAt).getTime();
   const fifteenMinutes = -1 * (1000 * 60 * 15);
+  const resend = new Resend(c.env.RESEND_API_KEY);
 
-  return c.text("");
+  if (currentTime - expiryDate <= fifteenMinutes) {
+    const verificationUrl = `http://localhost:8787/api/v1/user/verify?verificationToken=${token}`;
+    const { data, error } = await resend.emails.send({
+      from: "no-reply@verify.writeintelligent.blog",
+      to: email,
+      subject: "verify your email",
+      html: `<p>to verify your email for writeintelligent.blog, click <a href=${verificationUrl}>here</a></p>`,
+    });
+    if (error) {
+      return c.json(
+        {
+          msg: "error sending verification email : " + error.name,
+        },
+        400
+      );
+    }
+    return c.json({
+      msg: "verification email has been sent, check your email",
+    });
+  }
+  // if we have reached here this means either the email has expired or is 15 minutes away from expiry, so effectively expired
+  const newVerificationToken = generateVerificationToken();
+  const tommorowTime = new Date();
+  tommorowTime.setDate(tommorowTime.getDate() + 1);
+  const deleteVerificationToken = await prisma.verification_token.delete({
+    where: { userId: id },
+  });
+  if (!deleteVerificationToken) {
+    return c.json(
+      { msg: "internal server error , please try again" },
+      StatusCodes.internalServerError
+    );
+  }
+  const newVerificationTokenCreated = await prisma.verification_token.create({
+    data: {
+      token: newVerificationToken,
+      expiresAt: tommorowTime.toISOString(),
+      userId: userExists.id,
+    },
+  });
+  if (!newVerificationTokenCreated) {
+    return c.json(
+      { msg: "could not create new verification token" },
+      StatusCodes.internalServerError
+    );
+  }
+  const newVerificationUrl = `http://localhost:8787/api/v1/user/verify?verificationToken=${newVerificationTokenCreated}`;
+  const { data, error } = await resend.emails.send({
+    from: "no-reply@verify.writeintelligent.blog",
+    to: email,
+    subject: "verify your email",
+    html: `<p>to verify your email for writeintelligent.blog, click <a href=${newVerificationUrl}>here</a></p>`,
+  });
+  if (error) {
+    return c.json({ msg: "error sending email : " + error.name }, 400);
+  }
+  return c.redirect("http://google.com");
 });
 userRouter.get("/verify", async (c) => {
   console.log("reached request");
