@@ -122,7 +122,36 @@ userRouter.get("/newVerificationToken", async (c) => {
     where: { userId: id },
   });
   if (!expiredToken) {
-    return;
+    // this case is generally not possible, but even if it happens, we need to issue a new verification token for the user
+    const newVerificationToken = generateVerificationToken();
+    const tommorowTime = new Date();
+    tommorowTime.setDate(tommorowTime.getDate() + 1);
+    const createNewVerificationToken = await prisma.verification_token.create({
+      data: {
+        token: newVerificationToken,
+        userId: id,
+        expiresAt: tommorowTime.toISOString(),
+      },
+    });
+    if (!createNewVerificationToken) {
+      return c.json(
+        { msg: "internal server error" },
+        StatusCodes.internalServerError
+      );
+    }
+    const { token } = createNewVerificationToken;
+    const newVerificationTokenUrl = `http://localhost:8787/api/v1/user/verify?verificationToken?=${token}`;
+    const resend = new Resend(c.env.RESEND_API_KEY);
+    const { data, error } = await resend.emails.send({
+      from: "no-reply@verify.writeintelligent.blog",
+      to: email,
+      subject: "verify your email",
+      html: `<p>to verify your email for writeintelligent.blog, click <a href=${newVerificationTokenUrl}>here</a></p>`,
+    });
+    if (error) {
+      return c.json({ msg: "error sending email : " + error.name }, 400);
+    }
+    return c.json({ msg: "email sent successfully" }, 200);
   }
   const { expiresAt, token } = expiredToken;
   const currentTime = new Date().getTime();
