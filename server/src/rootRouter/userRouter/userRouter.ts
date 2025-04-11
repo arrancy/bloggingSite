@@ -100,9 +100,9 @@ userRouter.post("/signup", async (c) => {
   //   data: { token: verificationToken, userId: userCreated.id },
   // });
 });
-userRouter.get("/newVerificationToken", async (c) => {
+userRouter.get("/newVerificationToken/:email", async (c) => {
   type ReqBody = z.infer<typeof newVerificationTokenSchema>;
-  const reqBody: ReqBody = await c.req.json();
+  const reqBody: ReqBody = c.req.param();
   const { success } = newVerificationTokenSchema.safeParse(reqBody);
   if (!success) {
     return c.json({ msg: "invalid email" }, StatusCodes.invalidInputs);
@@ -205,7 +205,8 @@ userRouter.get("/newVerificationToken", async (c) => {
       StatusCodes.internalServerError
     );
   }
-  const newVerificationUrl = `http://localhost:8787/api/v1/user/verify?verificationToken=${newVerificationTokenCreated}`;
+  const newToken = newVerificationTokenCreated.token;
+  const newVerificationUrl = `http://localhost:8787/api/v1/user/verify?verificationToken=${newToken}`;
   const { data, error } = await resend.emails.send({
     from: "no-reply@verify.writeintelligent.blog",
     to: email,
