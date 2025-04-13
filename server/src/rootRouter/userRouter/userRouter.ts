@@ -16,6 +16,7 @@ import { StatusCodes } from "../../enums/enums";
 import { newVerificationTokenSchema } from "../../zodTypes/newVerificationTokenSchema";
 import { verify } from "hono/jwt";
 import { RefreshTokenPayload } from "../../auth/authTypes/RefreshTokenPayload";
+import { generateAccessAndRefreshToken } from "../../auth/authUtils/generateAccessAndRefreshToken";
 interface Env extends Variables, Bindings {
   Bindings: Bindings;
   Variables: Variables;
@@ -287,32 +288,17 @@ userRouter.get("/verify", async (c) => {
       );
     }
     const { ACCESS_TOKEN_SECRET } = c.env;
-    const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
-
-    const accessTokenPayload = {
-      id,
-      username,
-      exp,
-    };
-    const accessToken = await generateAccessToken(
-      accessTokenPayload,
-      ACCESS_TOKEN_SECRET
-    );
-    const refreshTokenJti = generateJti();
-    const refreshExp = exp * 7;
-    const refreshTokenPayload = {
-      userId: id,
-      exp: refreshExp,
-      jti: refreshTokenJti,
-    };
     const { REFRESH_TOKEN_SECRET } = c.env;
-    const refreshToken = await generateRefreshToken(
-      refreshTokenPayload,
-      REFRESH_TOKEN_SECRET
-    );
+    const { accessToken, refreshToken, jti } =
+      await generateAccessAndRefreshToken(
+        id,
+        username,
+        ACCESS_TOKEN_SECRET,
+        REFRESH_TOKEN_SECRET
+      );
     console.log(accessToken + ",," + refreshToken);
     const refreshTokenCreated = await prisma.refreshToken.create({
-      data: { jti: refreshTokenJti, token: refreshToken, userId: id },
+      data: { jti, token: refreshToken, userId: id },
     });
     console.log(refreshTokenCreated);
     if (!refreshTokenCreated) {
@@ -324,7 +310,7 @@ userRouter.get("/verify", async (c) => {
     }
 
     setCookie(c, "access_token", accessToken, accessTokenCookieOptions);
-    setCookie(c, "refreshToken", refreshToken, refreshTokenCookieOptions);
+    setCookie(c, "refresh_Token", refreshToken, refreshTokenCookieOptions);
     return c.json({ msg: "email verified successfully" }, 200);
   } catch (error) {
     if (error instanceof Error) {
@@ -339,16 +325,43 @@ userRouter.get("/verify", async (c) => {
 userRouter.get("/refreshToken", async (c) => {
   try {
     const receivedToken = c.req.header("Authorization");
+    const { prisma } = c.var;
     if (!receivedToken) {
       return c.json(
         { msg: "please send valid credentials" },
         StatusCodes.unauthenticad
       );
     }
-    const { REFRESH_TOKEN_SECRET } = c.env;
-    const decoded = await verify(receivedToken, REFRESH_TOKEN_SECRET);
+    const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = c.env;
+    const decodedPayload = await verify(receivedToken, REFRESH_TOKEN_SECRET);
+    const decoded = decodedPayload as RefreshTokenPayload;
+    const { userId } = decoded;
+    const oldJti = decoded.jti;
+    const userExists = await prisma.user.findFirst({ where: { id: userId } });
+    if (!userExists) {
+      return c.json({ msg: "invalid credentials" }, StatusCodes.unauthenticad);
+    }
+    const { username } = userExists;
+    const refreshTokenFound = await prisma.refreshToken.findFirst({
+      where: { jti: oldJti, userId, token: receivedToken },
+    });
+    if (!refreshTokenFound) {
+      return c.json({ msg: "invalid credentials" }, StatusCodes.unauthenticad);
+    }
 
-    return c.json("h");
+    const { accessToken, refreshToken, jti } =
+      await generateAccessAndRefreshToken(
+        userId,
+        username,
+        ACCESS_TOKEN_SECRET,
+        REFRESH_TOKEN_SECRET
+      );
+    const refreshTokenInDb = await prisma.refreshToken.create({
+      data: { token: refreshToken, jti, userId },
+    });
+    setCookie(c, "access_token", accessToken, accessTokenCookieOptions);
+    setCookie(c, "refresh_token", refreshToken, refreshTokenCookieOptions);
+    return c.json({ msg: "tokens refreshed successfully" }, 200);
   } catch (error) {
     console.log(error);
     return c.json(

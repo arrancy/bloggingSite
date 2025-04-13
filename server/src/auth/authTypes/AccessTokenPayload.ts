@@ -2,7 +2,6 @@ import { JWTPayload } from "hono/utils/jwt/types";
 
 export interface AccessTokenPayload extends JWTPayload {
   username: string;
-  id: number;
-
+  userId: number;
   exp: number;
 }
