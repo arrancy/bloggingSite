@@ -17,6 +17,7 @@ import { newVerificationTokenSchema } from "../../zodTypes/newVerificationTokenS
 import { verify } from "hono/jwt";
 import { RefreshTokenPayload } from "../../auth/authTypes/RefreshTokenPayload";
 import { generateAccessAndRefreshToken } from "../../auth/authUtils/generateAccessAndRefreshToken";
+import { signinSchema } from "../../zodTypes/signinSchema";
 interface Env extends Variables, Bindings {
   Bindings: Bindings;
   Variables: Variables;
@@ -320,6 +321,52 @@ userRouter.get("/verify", async (c) => {
       { msg: "internal server error" },
       StatusCodes.internalServerError
     );
+  }
+});
+userRouter.post("/signin", async (c) => {
+  type ReqBody = z.infer<typeof signinSchema>;
+  const reqBody: ReqBody = await c.req.json();
+  const { success } = signinSchema.safeParse(reqBody);
+  if (!success) {
+    return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
+  }
+  const { email } = reqBody;
+  const { prisma } = c.var;
+  const userExists = await prisma.user.findFirst({ where: { email } });
+  if (!(userExists && userExists.verified)) {
+    return c.json(
+      { msg: "invalid credentials or email not verified " },
+      StatusCodes.unauthenticad
+    );
+  }
+  const { id, username } = userExists;
+  // now the logic to check from how many devices is this person logged in from
+  const refreshTokens = await prisma.refreshToken.findMany({
+    where: { userId: id },
+  });
+  const numberOfRefreshtokens = refreshTokens.length;
+  if (numberOfRefreshtokens <= 2) {
+    const { password } = reqBody;
+    const correctPassword = bcrypt.compareSync(
+      reqBody.password,
+      userExists.password
+    );
+    if (!correctPassword) {
+      return c.json({ msg: "invalid credentials" }, StatusCodes.unauthenticad);
+    }
+    const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = c.env;
+    const { accessToken, refreshToken, jti } =
+      await generateAccessAndRefreshToken(
+        id,
+        username,
+        ACCESS_TOKEN_SECRET,
+        REFRESH_TOKEN_SECRET
+      );
+    setCookie(c, "access_token", accessToken, accessTokenCookieOptions);
+    setCookie(c, "refresh_token", refreshToken, refreshTokenCookieOptions);
+    return c.json({ msg: "logged in successfully" }, 200);
+  } else {
+    return c.json({ msg: "device login limit reached " }, StatusCodes.conflict);
   }
 });
 userRouter.get("/refreshToken", async (c) => {
