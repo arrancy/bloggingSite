@@ -1,10 +1,9 @@
-import { AccessTokenPayload } from "../authTypes/AccessTokenPayload";
 import { sign } from "hono/jwt";
-
+import { AccessTokenPayload } from "../authTypes/AccessTokenPayload";
 export const generateAccessToken = async (
-  payLoad: AccessTokenPayload,
+  payload: AccessTokenPayload,
   secret: string
 ) => {
-  const accessToken = await sign(payLoad, secret);
+  const accessToken = await sign(payload, secret);
   return accessToken;
 };
