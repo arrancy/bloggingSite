@@ -240,11 +240,8 @@ userRouter.get("/verify", async (c) => {
     const userExists = await prisma.user.findFirst({
       where: { verification_token: { token: verification_token } },
     });
-    console.log("reached here 3");
 
     if (!userExists) {
-      console.log("reached here 4");
-
       return c.json(
         { msg: "invalid verification token" },
         StatusCodes.unauthenticad
@@ -294,13 +291,11 @@ userRouter.get("/verify", async (c) => {
         ACCESS_TOKEN_SECRET,
         REFRESH_TOKEN_SECRET
       );
-    console.log(accessToken + ",," + refreshToken);
     const refreshTokenCreated = await prisma.refreshToken.create({
       data: { jti, token: refreshToken, userId: id },
     });
     console.log(refreshTokenCreated);
     if (!refreshTokenCreated) {
-      console.log("reached here 6");
       return c.json(
         { msg: "internal server error" },
         StatusCodes.internalServerError
@@ -311,9 +306,6 @@ userRouter.get("/verify", async (c) => {
     setCookie(c, "refresh_Token", refreshToken, refreshTokenCookieOptions);
     return c.json({ msg: "email verified successfully" }, 200);
   } catch (error) {
-    if (error instanceof Error) {
-      console.log(error.message);
-    }
     return c.json(
       { msg: "internal server error" },
       StatusCodes.internalServerError
@@ -342,8 +334,8 @@ userRouter.post("/signin", async (c) => {
     where: { userId: id },
   });
   const numberOfRefreshtokens = refreshTokens.length;
+  console.log(numberOfRefreshtokens);
   if (numberOfRefreshtokens <= 2) {
-    const { password } = reqBody;
     const correctPassword = bcrypt.compareSync(
       reqBody.password,
       userExists.password
