@@ -16,6 +16,7 @@ export interface Bindings {
 }
 export interface Variables {
   prisma: ExtendedPrismaClient;
+  userId: number;
 }
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();

@@ -20,11 +20,14 @@ export const authMiddleware = createMiddleware<{
       ACCESS_TOKEN_SECRET
     )) as AccessTokenPayload;
 
-    const { id, username } = decoded;
-    const userExists = await prisma.user.findFirst({ where: { id, username } });
+    const { userId, username } = decoded;
+    const userExists = await prisma.user.findFirst({
+      where: { id: userId, username },
+    });
     if (!userExists) {
       return c.json({ msg: "unauthenticated" }, StatusCodes.unauthenticad);
     }
+    c.set("userId", userId);
     await next();
   } catch (error) {
     return c.json({ msg: "unauthenticated" }, StatusCodes.unauthenticad);
