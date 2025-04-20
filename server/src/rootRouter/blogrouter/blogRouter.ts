@@ -15,15 +15,27 @@ blogRouter.use(authMiddleware);
 // send it to AI with a prompt that the user desires to give.
 // so there will be two seperate endpoints for both of these things
 // one for refine , one for custom prompt
-blogRouter.get("/blog", (c) => {
+blogRouter.get("/blog", async (c) => {
   const { success } = getBlogSchema.safeParse(c.req.query());
   if (!success) {
     return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
   }
-  const userIdString = c.req.query("userId");
-  if (!userIdString) {
+  const blogIdString = c.req.query("userId");
+  if (!blogIdString) {
     return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
   }
-  const userId = parseInt(userIdString);
-  return c.json("h");
+  const blogId = parseInt(blogIdString);
+  if (isNaN(blogId)) {
+    return c.json({ msg: "invalid request" }, StatusCodes.invalidInputs);
+  }
+  const { prisma, userId } = c.var;
+  const blogObject = await prisma.blog.findFirst({ where: { id: blogId } });
+  if (!blogObject) {
+    return c.json({ msg: "blog does not exist" }, StatusCodes.notFound);
+  }
+  if (!(userId === blogObject.userId)) {
+    return c.json({ msg: "blog is not yours " }, StatusCodes.conflict);
+  }
+
+  return c.json({ blogObject }, 200);
 });
