@@ -4,6 +4,7 @@ import { authMiddleware } from "../../auth/authMiddleWare";
 import z from "zod";
 import { getBlogSchema } from "../../zodTypes/getBlogSchema";
 import { StatusCodes } from "../../enums/enums";
+import { createBlogSchema } from "../../zodTypes/createBlogSchema";
 export interface Env extends Bindings, Variables {
   Bindings: Bindings;
   Variables: Variables;
@@ -45,4 +46,35 @@ blogRouter.get("/blog", async (c) => {
       StatusCodes.internalServerError
     );
   }
+});
+
+blogRouter.post("/blog", async (c) => {
+  type ReqBody = z.infer<typeof createBlogSchema>;
+  const reqBody: ReqBody = await c.req.json();
+  const { success } = createBlogSchema.safeParse(reqBody);
+  if (!success) {
+    return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
+  }
+  const { title, content } = reqBody;
+  const { prisma, userId } = c.var;
+  const alreadyExists = await prisma.blog.findFirst({
+    where: { title, content },
+  });
+  if (alreadyExists && !alreadyExists.isDraft) {
+    return c.json(
+      { msg: " duplicate content not allowed " },
+      StatusCodes.conflict
+    );
+  }
+  const blogCreated = await prisma.blog.create({
+    data: { ...reqBody, userId },
+  });
+  if (!blogCreated) {
+    return c.json(
+      { msg: "could not create blog" },
+      StatusCodes.internalServerError
+    );
+  }
+
+  return c.json({ msg: "blog created successfully", blogCreated });
 });
