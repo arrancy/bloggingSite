@@ -5,6 +5,7 @@ import z from "zod";
 import { getBlogSchema } from "../../zodTypes/getBlogSchema";
 import { StatusCodes } from "../../enums/enums";
 import { createBlogSchema } from "../../zodTypes/createBlogSchema";
+import { updateBlogSchema } from "../../zodTypes/updateBlogSchema";
 export interface Env extends Bindings, Variables {
   Bindings: Bindings;
   Variables: Variables;
@@ -77,4 +78,46 @@ blogRouter.post("/blog", async (c) => {
   }
 
   return c.json({ msg: "blog created successfully", blogCreated });
+});
+
+blogRouter.put("/blog", async (c) => {
+  try {
+    type ReqBody = z.infer<typeof updateBlogSchema>;
+    const reqBody: ReqBody = await c.req.json();
+    const { success } = updateBlogSchema.safeParse(reqBody);
+    if (!success) {
+      return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
+    }
+    const { prisma, userId } = c.var;
+    const { blogId } = reqBody;
+    const blogObject = await prisma.blog.findFirst({ where: { id: blogId } });
+    if (!blogObject) {
+      return c.json({ msg: "blog not found" }, StatusCodes.notFound);
+    }
+    const blogAuthorId = blogObject.userId;
+    if (!(userId === blogAuthorId)) {
+      return c.json(
+        { msg: "you are not the author of this blog" },
+        StatusCodes.conflict
+      );
+    }
+    // update code :
+    const { title, content, isDraft } = reqBody;
+    const updatedEntry = await prisma.blog.update({
+      where: { id: blogId },
+      data: { title, content, isDraft },
+    });
+    if (!updatedEntry) {
+      return c.json(
+        { msg: "could not update blog" },
+        StatusCodes.internalServerError
+      );
+    }
+    return c.json({ msg: "blog updated successfully", updatedEntry }, 200);
+  } catch (error) {
+    return c.json(
+      { msg: "internal server error" },
+      StatusCodes.internalServerError
+    );
+  }
 });
