@@ -18,6 +18,45 @@ blogRouter.use(authMiddleware);
 // send it to AI with a prompt that the user desires to give.
 // so there will be two seperate endpoints for both of these things
 // one for refine , one for custom prompt
+
+blogRouter.get("/blogs", async (c) => {
+  try {
+    const { prisma, userId } = c.var;
+    const userExists = await prisma.user.findFirst({ where: { id: userId } });
+    if (!userExists) {
+      return c.json({ msg: "user does not exist" }, StatusCodes.notFound);
+    }
+    const blogs = await prisma.blog.findMany({ where: { userId } });
+    if (!blogs) {
+      return c.json({ msg: "blogs not found" }, StatusCodes.notFound);
+    }
+    return c.json({ msg: "blogs fetched successfully", blogs }, 200);
+  } catch (error) {
+    return c.json(
+      { msg: "internal server error" },
+      StatusCodes.internalServerError
+    );
+  }
+});
+blogRouter.get("/allBlogs", async (c) => {
+  try {
+    const { prisma, userId } = c.var;
+    const userExists = await prisma.user.findFirst({ where: { id: userId } });
+    if (!userExists) {
+      return c.json({ msg: "user does not exist" }, StatusCodes.notFound);
+    }
+    const allBlogs = await prisma.blog.findMany({ where: { isDraft: false } });
+    if (!allBlogs) {
+      return c.json({ msg: "blogs not found" }, StatusCodes.notFound);
+    }
+    return c.json({ msg: "blogs fetched successfully" }, 200);
+  } catch (error) {
+    return c.json(
+      { msg: "internal server error" },
+      StatusCodes.internalServerError
+    );
+  }
+});
 blogRouter.get("/blog", async (c) => {
   try {
     const { success } = getBlogSchema.safeParse(c.req.query());
