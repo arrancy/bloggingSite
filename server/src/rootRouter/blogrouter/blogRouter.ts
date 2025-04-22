@@ -6,6 +6,7 @@ import { getBlogSchema } from "../../zodTypes/getBlogSchema";
 import { StatusCodes } from "../../enums/enums";
 import { createBlogSchema } from "../../zodTypes/createBlogSchema";
 import { updateBlogSchema } from "../../zodTypes/updateBlogSchema";
+import { deleteBlogSchema } from "../../zodTypes/deleteblogSchema";
 export interface Env extends Bindings, Variables {
   Bindings: Bindings;
   Variables: Variables;
@@ -114,6 +115,41 @@ blogRouter.put("/blog", async (c) => {
       );
     }
     return c.json({ msg: "blog updated successfully", updatedEntry }, 200);
+  } catch (error) {
+    return c.json(
+      { msg: "internal server error" },
+      StatusCodes.internalServerError
+    );
+  }
+});
+blogRouter.delete("/blog", async (c) => {
+  try {
+    type ReqBody = z.infer<typeof deleteBlogSchema>;
+    const reqBody: ReqBody = await c.req.json();
+    const { success } = deleteBlogSchema.safeParse(reqBody);
+    if (!success) {
+      return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
+    }
+    const { blogId } = reqBody;
+    const { prisma, userId } = c.var;
+    const blogObject = await prisma.blog.findFirst({ where: { id: blogId } });
+    if (!blogObject) {
+      return c.json({ msg: "blog not found" }, StatusCodes.notFound);
+    }
+    if (!(userId === blogObject.userId)) {
+      return c.json(
+        { msg: "you are not the author of the given blog " },
+        StatusCodes.conflict
+      );
+    }
+    const deletedObject = await prisma.blog.delete({ where: { id: blogId } });
+    if (!deletedObject) {
+      return c.json(
+        { msg: "could not delete object " },
+        StatusCodes.internalServerError
+      );
+    }
+    return c.json({ msg: "blog deleted successfully" }, 200);
   } catch (error) {
     return c.json(
       { msg: "internal server error" },
