@@ -7,6 +7,8 @@ import { StatusCodes } from "../../enums/enums";
 import { createBlogSchema } from "../../zodTypes/createBlogSchema";
 import { updateBlogSchema } from "../../zodTypes/updateBlogSchema";
 import { deleteBlogSchema } from "../../zodTypes/deleteblogSchema";
+import { GoogleGenAI } from "@google/genai";
+
 export interface Env extends Bindings, Variables {
   Bindings: Bindings;
   Variables: Variables;

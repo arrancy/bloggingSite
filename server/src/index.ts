@@ -4,19 +4,26 @@ import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
 import { prismaMiddleware } from "./prismaMiddleware/prismaMiddleware";
+import { GoogleGenAI } from "@google/genai";
 const createPrismaClient = () => {
   return new PrismaClient().$extends(withAccelerate());
 };
 export type ExtendedPrismaClient = ReturnType<typeof createPrismaClient>;
+export const createGenAi = () => {
+  return new GoogleGenAI({});
+};
+type CreateGenAiType = ReturnType<typeof createGenAi>;
 export interface Bindings {
   DATABASE_URL: string;
   RESEND_API_KEY: string;
   ACCESS_TOKEN_SECRET: string;
   REFRESH_TOKEN_SECRET: string;
+  GEMINI_API_KEY: string;
 }
 export interface Variables {
   prisma: ExtendedPrismaClient;
   userId: number;
+  ai: CreateGenAiType;
 }
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
