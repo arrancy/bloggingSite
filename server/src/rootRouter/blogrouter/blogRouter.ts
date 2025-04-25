@@ -59,7 +59,7 @@ blogRouter.get("/allBlogs", async (c) => {
     );
   }
 });
-blogRouter.get("/blog", async (c) => {
+blogRouter.get("/", async (c) => {
   try {
     const { success } = getBlogSchema.safeParse(c.req.query());
     if (!success) {
@@ -91,7 +91,7 @@ blogRouter.get("/blog", async (c) => {
   }
 });
 
-blogRouter.post("/blog", async (c) => {
+blogRouter.post("/", async (c) => {
   type ReqBody = z.infer<typeof createBlogSchema>;
   const reqBody: ReqBody = await c.req.json();
   const { success } = createBlogSchema.safeParse(reqBody);
@@ -122,7 +122,7 @@ blogRouter.post("/blog", async (c) => {
   return c.json({ msg: "blog created successfully", blogCreated });
 });
 
-blogRouter.put("/blog", async (c) => {
+blogRouter.put("/", async (c) => {
   try {
     type ReqBody = z.infer<typeof updateBlogSchema>;
     const reqBody: ReqBody = await c.req.json();
@@ -163,7 +163,8 @@ blogRouter.put("/blog", async (c) => {
     );
   }
 });
-blogRouter.delete("/blog", async (c) => {
+
+blogRouter.delete("/", async (c) => {
   try {
     type ReqBody = z.infer<typeof deleteBlogSchema>;
     const reqBody: ReqBody = await c.req.json();
