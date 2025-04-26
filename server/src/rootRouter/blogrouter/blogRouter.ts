@@ -88,7 +88,7 @@ blogRouter.get("/", async (c) => {
     if (!success) {
       return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
     }
-    const blogIdString = c.req.query("userId");
+    const blogIdString = c.req.query("blogId");
     if (!blogIdString) {
       return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
     }
