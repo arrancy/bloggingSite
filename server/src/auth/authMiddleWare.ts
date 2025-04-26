@@ -1,15 +1,17 @@
 import { createMiddleware } from "hono/factory";
 import { Bindings, Variables } from "..";
-import { verify } from "hono/jwt";
+import { decode, verify } from "hono/jwt";
 import { AccessTokenPayload } from "./authTypes/AccessTokenPayload";
 import { StatusCodes } from "../enums/enums";
+import { getCookie } from "hono/cookie";
 
 export const authMiddleware = createMiddleware<{
   Bindings: Bindings;
   Variables: Variables;
 }>(async (c, next) => {
   try {
-    const token = c.req.header("Authorization");
+    const token = getCookie(c, "access_token");
+    console.log(token);
     if (!token) {
       return c.json({ msg: "unauthenticated" }, StatusCodes.unauthenticad);
     }
@@ -19,7 +21,7 @@ export const authMiddleware = createMiddleware<{
       token,
       ACCESS_TOKEN_SECRET
     )) as AccessTokenPayload;
-
+    console.log(decoded);
     const { userId, username } = decoded;
     const userExists = await prisma.user.findFirst({
       where: { id: userId, username },
@@ -30,6 +32,9 @@ export const authMiddleware = createMiddleware<{
     c.set("userId", userId);
     await next();
   } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+    }
     return c.json({ msg: "unauthenticated" }, StatusCodes.unauthenticad);
   }
 });

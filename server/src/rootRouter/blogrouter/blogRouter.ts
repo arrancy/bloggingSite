@@ -8,6 +8,8 @@ import { createBlogSchema } from "../../zodTypes/createBlogSchema";
 import { updateBlogSchema } from "../../zodTypes/updateBlogSchema";
 import { deleteBlogSchema } from "../../zodTypes/deleteblogSchema";
 import { GoogleGenAI } from "@google/genai";
+import { aiMiddleware } from "../../aiMiddleware/aiMiddleware";
+import { aiModifySchema } from "../../zodTypes/aiModifySchema";
 
 export interface Env extends Bindings, Variables {
   Bindings: Bindings;
@@ -20,8 +22,29 @@ blogRouter.use(authMiddleware);
 // send it to AI with a prompt that the user desires to give.
 // so there will be two seperate endpoints for both of these things
 // one for refine , one for custom prompt
+blogRouter.post("/ai/refine", aiMiddleware, async (c) => {
+  type ReqBody = z.infer<typeof aiModifySchema>;
+  const reqBody: ReqBody = await c.req.json();
+  const { success } = aiModifySchema.safeParse(reqBody);
+  if (!success) {
+    return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
+  }
+  const { ai } = c.var;
+  const dummyPrompt = {
+    snippet:
+      "today i will explain refreshToken auth, the most important thing to undersrtand is that we can store refreshTokens in the database.",
+    tone: "formal",
+  };
+  const response = await ai.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents:
+      "you are given a task to improve a snippet from a user's blog, ahead will be a json object with three fields : snippet, tone and instruction , the snippet field will show what exactly is the given text from the user's blog that you need to refine, the `tone` field will show in what tone should you refine the text, if that field is empty, you will receive a custom instruction as to how one should refine the text which will be in the third field as to how to refine the text. please respond in json format , if you successfully generate the refined text, your response will be a json and will have two fields :1.`success` which will be true and`text` which will have the refined text, if you are not able to understand user's desired tone for refinement or their instruction , kindly make success as false and the second field `text` will be empty. while responding please only give json object and nothing else , not even the ```json``` text at the beginning. here is the json object : " +
+      dummyPrompt,
+  });
+  console.log(response);
+});
 
-blogRouter.get("/blogs", async (c) => {
+blogRouter.get("/blogsOfUser", async (c) => {
   try {
     const { prisma, userId } = c.var;
     const userExists = await prisma.user.findFirst({ where: { id: userId } });
@@ -92,34 +115,45 @@ blogRouter.get("/", async (c) => {
 });
 
 blogRouter.post("/", async (c) => {
-  type ReqBody = z.infer<typeof createBlogSchema>;
-  const reqBody: ReqBody = await c.req.json();
-  const { success } = createBlogSchema.safeParse(reqBody);
-  if (!success) {
-    return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
-  }
-  const { title, content } = reqBody;
-  const { prisma, userId } = c.var;
-  const alreadyExists = await prisma.blog.findFirst({
-    where: { title, content },
-  });
-  if (alreadyExists && !alreadyExists.isDraft) {
+  try {
+    type ReqBody = z.infer<typeof createBlogSchema>;
+    const reqBody: ReqBody = await c.req.json();
+    const { success } = createBlogSchema.safeParse(reqBody);
+    if (!success) {
+      return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
+    }
+    const { title, content } = reqBody;
+    const { prisma, userId } = c.var;
+    console.log({ title, content });
+    const alreadyExists = await prisma.blog.findFirst({
+      where: { title, content },
+    });
+    if (alreadyExists && !alreadyExists.isDraft) {
+      return c.json(
+        { msg: " duplicate content not allowed " },
+        StatusCodes.conflict
+      );
+    }
+    const blogCreated = await prisma.blog.create({
+      data: { ...reqBody, userId },
+    });
+    if (!blogCreated) {
+      return c.json(
+        { msg: "could not create blog" },
+        StatusCodes.internalServerError
+      );
+    }
+
+    return c.json({ msg: "blog created successfully", blogCreated });
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+    }
     return c.json(
-      { msg: " duplicate content not allowed " },
-      StatusCodes.conflict
-    );
-  }
-  const blogCreated = await prisma.blog.create({
-    data: { ...reqBody, userId },
-  });
-  if (!blogCreated) {
-    return c.json(
-      { msg: "could not create blog" },
+      { msg: "internal server error" },
       StatusCodes.internalServerError
     );
   }
-
-  return c.json({ msg: "blog created successfully", blogCreated });
 });
 
 blogRouter.put("/", async (c) => {
