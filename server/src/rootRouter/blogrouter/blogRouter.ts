@@ -22,40 +22,44 @@ blogRouter.use(authMiddleware);
 // so there will be two seperate endpoints for both of these things
 // one for refine , one for custom prompt
 blogRouter.post("/ai/refine", aiMiddleware, async (c) => {
-  type ReqBody = z.infer<typeof aiModifySchema>;
-  const reqBody: ReqBody = await c.req.json();
-  const { success } = aiModifySchema.safeParse(reqBody);
-  if (!success) {
-    return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
+  try {
+    type ReqBody = z.infer<typeof aiModifySchema>;
+    const reqBody: ReqBody = await c.req.json();
+    const { success } = aiModifySchema.safeParse(reqBody);
+    if (!success) {
+      return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
+    }
+    const { ai } = c.var;
+    const { tone, instruction } = reqBody;
+    if (!(tone || instruction)) {
+      return c.json(
+        { msg: "either give a tone or an instruction" },
+        StatusCodes.conflict
+      );
+    }
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents:
+        "you are given a task to improve a snippet from a user's blog, ahead will be a json object with three fields : snippet, tone and instruction , the snippet field will show what exactly is the given text from the user's blog that you need to refine, the `tone` field will show in what tone should you refine the text, if that field is empty, you will receive a custom instruction as to how one should refine the text which will be in the third field as to how to refine the text. please respond in json format , if you successfully generate the refined text, your response will be a json and will have two fields :1.`success` which will be true and`text` which will have the refined text, if you are not able to understand user's desired tone for refinement or their instruction , kindly make success as false and the second field `text` will be empty. while responding please only give json object and nothing else , not even the ```json``` text at the beginning, none of the '\n' or anything at all which will result in an error while doing JSON.parse(). here is the json object : " +
+        JSON.stringify(reqBody),
+    });
+    if (!response || !response?.candidates) {
+      return c.json({ msg: "hello1" }, 409);
+    }
+    const result = response?.candidates[0].content?.parts;
+    if (!result || !result[0].text) {
+      return c.json({ msg: "hello3" }, 409);
+    }
+    const finalResult = result[0].text;
+    const cleanedResult = finalResult.replace("```json", "").replace("```", "");
+    const cleanedResultJson = JSON.parse(cleanedResult);
+    if (!cleanedResultJson.success) {
+      return c.json({ msg: "bad request" }, 401);
+    }
+    return c.json(cleanedResultJson, 200);
+  } catch (error) {
+    return c.json({ msg: "internal server error" }, StatusCodes.conflict);
   }
-  const { ai } = c.var;
-  const { tone, instruction } = reqBody;
-  if (!(tone || instruction)) {
-    return c.json(
-      { msg: "either give a tone or an instruction" },
-      StatusCodes.conflict
-    );
-  }
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents:
-      "you are given a task to improve a snippet from a user's blog, ahead will be a json object with three fields : snippet, tone and instruction , the snippet field will show what exactly is the given text from the user's blog that you need to refine, the `tone` field will show in what tone should you refine the text, if that field is empty, you will receive a custom instruction as to how one should refine the text which will be in the third field as to how to refine the text. please respond in json format , if you successfully generate the refined text, your response will be a json and will have two fields :1.`success` which will be true and`text` which will have the refined text, if you are not able to understand user's desired tone for refinement or their instruction , kindly make success as false and the second field `text` will be empty. while responding please only give json object and nothing else , not even the ```json``` text at the beginning, none of the '\n' or anything at all which will result in an error while doing JSON.parse(). here is the json object : " +
-      JSON.stringify(reqBody),
-  });
-  if (!response || !response?.candidates) {
-    return c.json({ msg: "hello1" }, 409);
-  }
-  const result = response?.candidates[0].content?.parts;
-  if (!result || !result[0].text) {
-    return c.json({ msg: "hello3" }, 409);
-  }
-  const finalResult = result[0].text;
-  const cleanedResult = finalResult.replace("```json", "").replace("```", "");
-  const cleanedResultJson = JSON.parse(cleanedResult);
-  if (!cleanedResultJson.success) {
-    return c.json({ msg: "bad request" }, 401);
-  }
-  return c.json(cleanedResultJson, 200);
 });
 
 blogRouter.get("/blogsOfUser", async (c) => {
