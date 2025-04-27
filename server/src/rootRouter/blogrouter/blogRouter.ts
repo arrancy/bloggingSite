@@ -7,7 +7,6 @@ import { StatusCodes } from "../../enums/enums";
 import { createBlogSchema } from "../../zodTypes/createBlogSchema";
 import { updateBlogSchema } from "../../zodTypes/updateBlogSchema";
 import { deleteBlogSchema } from "../../zodTypes/deleteblogSchema";
-import { GoogleGenAI } from "@google/genai";
 import { aiMiddleware } from "../../aiMiddleware/aiMiddleware";
 import { aiModifySchema } from "../../zodTypes/aiModifySchema";
 
@@ -30,7 +29,13 @@ blogRouter.post("/ai/refine", aiMiddleware, async (c) => {
     return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
   }
   const { ai } = c.var;
-
+  const { tone, instruction } = reqBody;
+  if (!(tone || instruction)) {
+    return c.json(
+      { msg: "either give a tone or an instruction" },
+      StatusCodes.conflict
+    );
+  }
   const response = await ai.models.generateContent({
     model: "gemini-2.0-flash",
     contents:
