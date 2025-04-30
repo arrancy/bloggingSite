@@ -1,9 +1,11 @@
+import { PenLine } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { BookCheck } from "lucide-react";
 import { motion } from "motion/react";
-
 export function Hero() {
   return (
     <>
-      <div className="  relative top-1/4">
+      <div className="  relative top-1/8 ">
         <div className=" text-center mx-auto">
           <motion.h1
             className="  text-8xl font-bold text-slate-300 mx-auto"
@@ -53,6 +55,35 @@ export function Hero() {
           >
             get started {">"}
           </motion.button>
+        </div>
+        <div className="grid sm:grid-cols-3 grid-cols-1 text-center mt-12">
+          <div className="text-purple-300 flex justify-center space-x-4">
+            <div className="text-5xl font-bold  ">
+              <motion.span
+                initial={{ clipPath: "inset(0 100% 0 0)" }}
+                animate={{ clipPath: "inset(0 0 0 0)" }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: 1.3 }}
+                className="inline-block"
+              >
+                create
+              </motion.span>
+            </div>
+            <div className="relative top-3">
+              <PenLine size={34}></PenLine>
+            </div>
+          </div>
+          <div className=" text-purple-300 flex justify-center space-x-4">
+            <div className="text-5xl font-bold">refine</div>
+            <div className=" relative top-3">
+              <Sparkles size={34}></Sparkles>
+            </div>
+          </div>
+          <div className=" text-purple-300 flex justify-center space-x-4">
+            <div className="text-5xl font-bold">publish</div>
+            <div className="relative top-3">
+              <BookCheck size={34}></BookCheck>
+            </div>
+          </div>
         </div>
       </div>
     </>
