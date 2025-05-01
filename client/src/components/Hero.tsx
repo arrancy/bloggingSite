@@ -57,31 +57,100 @@ export function Hero() {
           </motion.button>
         </div>
         <div className="grid sm:grid-cols-3 grid-cols-1 text-center mt-12">
-          <div className="text-purple-300 flex justify-center space-x-4">
-            <div className="text-5xl font-bold  ">
+          <div className="">
+            {" "}
+            <div className="text-purple-300 flex justify-center space-x-4">
+              <div className="text-5xl font-bold  ">
+                <motion.span
+                  // initial={{ clipPath: "inset(0 100% 0 0)" }}
+                  // animate={{ clipPath: "inset(0 0 0 0)" }}
+                  initial={{
+                    opacity: 0,
+                    transform: "translateY(20px)",
+                    filter: "blur(10px)",
+                  }}
+                  animate={{
+                    opacity: 1,
+                    transform: "translateY(0px)",
+                    filter: "blur(0px)",
+                  }}
+                  transition={{ duration: 0.6, ease: "easeOut", delay: 1.3 }}
+                  className="inline-block"
+                >
+                  create
+                </motion.span>
+              </div>
+              <div className="relative top-3">
+                <motion.span
+                  initial={{ clipPath: "inset(0 100% 0 0)" }}
+                  animate={{ clipPath: "inset(0 0 0 0)" }}
+                  transition={{ duration: 0.3, ease: "easeOut", delay: 2 }}
+                  className="inline-block"
+                >
+                  <PenLine size={34}></PenLine>
+                </motion.span>
+              </div>
+            </div>
+            <div className="text-3xl  text-purple-400 font-medium relative top-10 pb-1 ">
               <motion.span
+                className="inline-block"
                 initial={{ clipPath: "inset(0 100% 0 0)" }}
                 animate={{ clipPath: "inset(0 0 0 0)" }}
-                transition={{ duration: 0.6, ease: "easeOut", delay: 1.3 }}
-                className="inline-block"
+                transition={{ duration: 0.6, ease: "easeOut", delay: 2.2 }}
               >
-                create
+                create new blogs on anything you like!
               </motion.span>
             </div>
-            <div className="relative top-3">
-              <PenLine size={34}></PenLine>
-            </div>
           </div>
-          <div className=" text-purple-300 flex justify-center space-x-4">
-            <div className="text-5xl font-bold">refine</div>
-            <div className=" relative top-3">
-              <Sparkles size={34}></Sparkles>
+          <div>
+            {" "}
+            <div className=" text-purple-300 flex justify-center space-x-4">
+              <div className="text-5xl font-bold">
+                <motion.span
+                  initial={{
+                    opacity: 0,
+                    transform: "translateY(20px)",
+                    filter: "blur(10px)",
+                  }}
+                  animate={{
+                    opacity: 1,
+                    transform: "translateY(0px)",
+                    filter: "blur(0px)",
+                  }}
+                  transition={{ duration: 0.6, ease: "easeOut", delay: 1.3 }}
+                  className="inline-block"
+                >
+                  refine
+                </motion.span>
+              </div>
+              <div className=" relative top-3">
+                <motion.span
+                  initial={{ clipPath: "inset(0 100% 0 0)" }}
+                  animate={{ clipPath: "inset(0 0 0 0)" }}
+                  transition={{ duration: 0.3, ease: "easeOut", delay: 2 }}
+                  className="inline-block"
+                >
+                  <Sparkles size={34}></Sparkles>
+                </motion.span>
+              </div>
             </div>
+            <div className="text-3xl  text-purple-400 font-medium relative top-10 pb-1 ">
+              <motion.span
+                className="inline-block"
+                initial={{ clipPath: "inset(0 100% 0 0)" }}
+                animate={{ clipPath: "inset(0 0 0 0)" }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: 2.2 }}
+              >
+                now use the power of AI to refine your blogs!
+              </motion.span>
+            </div>{" "}
           </div>
-          <div className=" text-purple-300 flex justify-center space-x-4">
-            <div className="text-5xl font-bold">publish</div>
-            <div className="relative top-3">
-              <BookCheck size={34}></BookCheck>
+          <div>
+            <div className=" text-purple-300 flex justify-center space-x-4">
+              <div className="text-5xl font-bold">publish</div>
+              <div className="relative top-3">
+                <BookCheck size={34}></BookCheck>
+              </div>
             </div>
           </div>
         </div>
