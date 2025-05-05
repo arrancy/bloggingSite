@@ -12,9 +12,9 @@ export function GridItem({ title, description, iconName }: GridItemProps) {
   const Icon = iconName;
   return (
     <>
-      <div>
-        <div className=" text-purple-300 flex justify-center space-x-4">
-          <div className="text-5xl font-bold">
+      <div className="mt-4 sm:mt-0 px-6 sm:px-0 pb-1 sm:pb-0">
+        <div className=" text-purple-300 flex justify-center space-x-1 sm:space-x-4">
+          <div className="sm:text-5xl text-4xl font-bold">
             <motion.span
               initial={{
                 opacity: 0,
@@ -40,11 +40,11 @@ export function GridItem({ title, description, iconName }: GridItemProps) {
               className="inline-block"
             >
               {/* <Sparkles size={34}></Sparkles> */}
-              <Icon size={34}></Icon>
+              <Icon className="sm:w-9 sm:h-9  w-6 h-6"></Icon>
             </motion.span>
           </div>
         </div>
-        <div className="text-3xl  text-purple-400 font-medium relative top-10 pb-1 ">
+        <div className="text-2xl sm:text-3xl text-purple-400 font-medium relative sm:top-6 top-1">
           <motion.span
             className="inline-block"
             initial={{ clipPath: "inset(0 100% 0 0)" }}

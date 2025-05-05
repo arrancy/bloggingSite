@@ -9,7 +9,7 @@ export function Hero() {
       <div className="  relative top-1/8 ">
         <div className=" text-center mx-auto">
           <motion.h1
-            className="  text-8xl font-bold text-slate-300 mx-auto"
+            className="  sm:text-8xl text-6xl font-bold text-slate-300 mx-auto"
             initial={{
               transform: "translateY(50px)",
               opacity: 0,
@@ -25,7 +25,7 @@ export function Hero() {
             write intelligent blogs
           </motion.h1>
           <motion.h1
-            className=" text-8xl font-bold text-slate-300 mx-auto"
+            className=" sm:text-8xl text-6xl font-bold text-slate-300 mx-auto"
             initial={{
               transform: "translateY(50px)",
               opacity: 0,
