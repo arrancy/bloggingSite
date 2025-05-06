@@ -1,4 +1,5 @@
 import logoImage from "./../assets/Adobe Express - file.png";
+import { NavElement } from "./NavElement";
 export function Navbar() {
   return (
     <>
@@ -11,16 +12,10 @@ export function Navbar() {
             writeIntelligent
           </div>
         </div>
-        <div className="flex space-x-4 text-slate-400 font-semibold text-lg ">
-          <div className="rounded-lg px-2 hover:text-slate-200 hover:bg-purple-950 cursor-pointer">
-            home
-          </div>
-          <div className="rounded-lg px-2 hover:text-slate-200  hover:bg-purple-950 cursor-pointer">
-            about us
-          </div>
-          <div className="rounded-lg px-2 hover:text-slate-200  hover:bg-purple-950 cursor-pointer">
-            blogs
-          </div>
+        <div className="flex space-x-1 sm:space-x-4  text-slate-400 font-semibold text-lg ">
+          <NavElement label="home"></NavElement>
+          <NavElement label="about us"></NavElement>
+          <NavElement label="blogs"></NavElement>
         </div>
       </div>
     </>

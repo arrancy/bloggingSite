@@ -3,6 +3,7 @@ import "./App.css";
 import { RecoilRoot } from "recoil";
 import { LandingPage } from "./pages/LandingPage";
 import { Signup } from "./pages/Signup";
+import { Signin } from "./pages/Signin";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage></LandingPage>}></Route>
             <Route path="/signup" element={<Signup></Signup>}></Route>
+            <Route path="/signin" element={<Signin></Signin>}></Route>
           </Routes>
         </RecoilRoot>
       </BrowserRouter>
