@@ -15,7 +15,7 @@ export function Signup() {
           <InputField label="email" type="text" />
           <InputField label="username" type="text" />
           <InputField label="password" type="password" />
-          <ButtonToSign></ButtonToSign>
+          <ButtonToSign label="Sign Up"></ButtonToSign>
           <BottomMessage
             message="already have an account ?"
             link="sign in"

@@ -1,5 +1,6 @@
 import { BottomHeading } from "../components/BottomHeading";
 import { BottomMessage } from "../components/BottomMessage";
+import { ButtonToSign } from "../components/ButtonToSign";
 import { InputField } from "../components/InputField";
 import { TopHeading } from "../components/TopHeading";
 
@@ -11,6 +12,7 @@ export function Signin() {
         <BottomHeading label="sign in into your account"></BottomHeading>
         <InputField label="email" type="text"></InputField>
         <InputField label="password" type="password"></InputField>
+        <ButtonToSign label="Sign In"></ButtonToSign>
         <BottomMessage
           message="don't have an account ?"
           link="Sign Up"
