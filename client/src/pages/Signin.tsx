@@ -7,7 +7,7 @@ import { TopHeading } from "../components/TopHeading";
 export function Signin() {
   return (
     <div className="h-screen w-screen flex items-center justify-center">
-      <div className="shadow-lg shadow-fuchsia-600 rounded-lg px-6 py-4">
+      <div className="shadow-lg shadow-fuchsia-600 rounded-lg px-6 py-4 bg-purple-100">
         <TopHeading label="Sign in"></TopHeading>
         <BottomHeading label="sign in into your account"></BottomHeading>
         <InputField label="email" type="text"></InputField>

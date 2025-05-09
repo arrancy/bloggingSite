@@ -6,7 +6,7 @@ interface BottomMessageProps {
 
 export function BottomMessage({ message, link, toPage }: BottomMessageProps) {
   return (
-    <div className="font-medium text-center text-purple-300 mt-3  text-shadow-gray-400 text-lg ">
+    <div className="font-medium text-center text-purple-400 mt-3  text-shadow-gray-400 text-lg ">
       {message}
       <br></br> click here to{" "}
       <a

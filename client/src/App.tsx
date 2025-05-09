@@ -4,6 +4,7 @@ import { RecoilRoot } from "recoil";
 import { LandingPage } from "./pages/LandingPage";
 import { Signup } from "./pages/Signup";
 import { Signin } from "./pages/Signin";
+import { CreateBlog } from "./pages/CreateBlog";
 
 function App() {
   return (
@@ -14,6 +15,10 @@ function App() {
             <Route path="/" element={<LandingPage></LandingPage>}></Route>
             <Route path="/signup" element={<Signup></Signup>}></Route>
             <Route path="/signin" element={<Signin></Signin>}></Route>
+            <Route
+              path="/createBlog"
+              element={<CreateBlog></CreateBlog>}
+            ></Route>
           </Routes>
         </RecoilRoot>
       </BrowserRouter>
