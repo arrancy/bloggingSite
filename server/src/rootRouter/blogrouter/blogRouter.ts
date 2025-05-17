@@ -88,7 +88,11 @@ blogRouter.get("/allBlogs", async (c) => {
     if (!userExists) {
       return c.json({ msg: "user does not exist" }, StatusCodes.notFound);
     }
-    const allBlogs = await prisma.blog.findMany({ where: { isDraft: false } });
+    const allBlogs = await prisma.blog.findMany({
+      where: { isDraft: false },
+      take: 5,
+      orderBy: { createdAt: "desc" },
+    });
     if (!allBlogs) {
       return c.json({ msg: "blogs not found" }, StatusCodes.notFound);
     }
