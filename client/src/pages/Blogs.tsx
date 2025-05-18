@@ -1,9 +1,11 @@
 import { BlogButton } from "../components/BlogButton";
+import { Navbar } from "../components/Navbar";
 
 export function Blogs() {
   return (
     <>
-      <div className="min-h-screen w-full text-center bg-gradient-to-br from-slate-950 to-purple-950 py-10">
+      <div className="min-h-screen w-full text-center bg-gradient-to-br from-slate-950 to-purple-950 pb-10 pt-4 px-[15%]">
+        <Navbar></Navbar>
         <div className="text-slate-200 text-8xl font-bold ">Blogs.</div>
         <div className=" w-fit  mx-auto">
           <BlogButton

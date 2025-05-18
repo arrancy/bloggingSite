@@ -2,9 +2,9 @@ import { Navbar } from "../components/Navbar";
 
 export function CreateBlog() {
   return (
-    <div className="min-h-screen flex flex-col w-screen bg-gradient-to-br from-slate-950 to-fuchsia-950">
+    <div className="min-h-screen flex flex-col w-screen bg-gradient-to-br from-slate-950 to-fuchsia-950 px-[15%]">
       <Navbar></Navbar>
-      <div className=" w-3/4 flex flex-col flex-1  mx-auto">
+      <div className=" w-full flex flex-col flex-1  mx-auto">
         <div className="w-full flex flex-row shadow-fuchsia-700 bg-white shadow-md rounded-lg px-4 py-4">
           <textarea
             className="flex-1 resize- focus:outline-none text-4xl font-bold text-slate-950 resize-none "
