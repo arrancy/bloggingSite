@@ -2,12 +2,12 @@ import { Navbar } from "../components/Navbar";
 
 export function CreateBlog() {
   return (
-    <div className="min-h-screen flex flex-col w-screen bg-gradient-to-br from-slate-950 to-fuchsia-950 px-[15%]">
+    <div className="min-h-screen flex flex-col w-screen bg-gradient-to-br from-slate-950 to-fuchsia-950 px-[15%] pt-4">
       <Navbar></Navbar>
-      <div className=" w-full flex flex-col flex-1  mx-auto">
+      <div className=" w-full flex flex-col flex-1  mx-auto ">
         <div className="w-full flex flex-row shadow-fuchsia-700 bg-white shadow-md rounded-lg px-4 py-4">
           <textarea
-            className="flex-1 resize- focus:outline-none text-4xl font-bold text-slate-950 resize-none "
+            className="flex-1 resize- focus:outline-none text-4xl font-bold  text-slate-950 resize-none "
             placeholder="enter your title here"
           ></textarea>
           <button className="bg-fuchsia-900 font-bold text-lg px-3 rounded-3xl my-3  text-fuchsia-100 ">

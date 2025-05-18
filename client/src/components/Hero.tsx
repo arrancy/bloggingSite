@@ -6,7 +6,7 @@ import { GridItem } from "./GridItem";
 export function Hero() {
   return (
     <>
-      <div className="  relative top-1/8 ">
+      <div className=" mt-16 ">
         <div className=" text-center mx-auto">
           <motion.h1
             className="  sm:text-8xl text-6xl font-bold text-slate-300 mx-auto"
@@ -52,7 +52,7 @@ export function Hero() {
               filter: "blur(0px)",
             }}
             transition={{ duration: 0.6, delay: 1 }}
-            className=" mt-8 shadow-blue-200 text-slate-800 shadow-md text-2xl font-semibold bg-slate-200 px-4 pb-3 pt-1  cursor-pointer rounded-3xl hover:shadow-lg hover:shadow-slate-200 transition-all ease-in-out duration-200"
+            className=" mt-8 shadow-slate-400 text-slate-800 shadow-md text-2xl font-semibold bg-slate-200 px-4 pb-3 pt-1  cursor-pointer rounded-3xl hover:shadow-lg hover:shadow-slate-400 transition-all ease-in-out duration-200"
           >
             get started {">"}
           </motion.button>

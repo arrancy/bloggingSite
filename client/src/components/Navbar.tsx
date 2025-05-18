@@ -3,7 +3,7 @@ import { NavElement } from "./NavElement";
 export function Navbar() {
   return (
     <>
-      <div className="  text-slate-200 rounded-lg shadow-md bg-gradient-to-br from-slate-950 to-purple-950 border-2 border-fuchsia-300 shadow-fuchsia-400 font-semibold sticky top-0 flex justify-between w-full hover:shadow-lg duration-100 py-2 px-2 mb-14 sm:mb-4">
+      <div className="  text-slate-200 rounded-lg shadow-md bg-gradient-to-br from-slate-950 to-purple-950  border-fuchsia-300 shadow-fuchsia-800 font-semibold sticky top-0 flex justify-between w-full hover:shadow-lg duration-100 py-2 px-2 mb-14 sm:mb-4">
         <div className="flex justify-center space-x-2">
           <div className="w-8">
             <img src={logoImage} className="max-w-full w-fit "></img>
