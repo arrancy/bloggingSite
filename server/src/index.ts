@@ -39,31 +39,4 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 // basically when you create the prisma variable as new prismaClient, the types are not even extendable with the clients , but i have not tried with edge yet, but it turns into something dynamicClient something, the user and blog everything related to your database model gets attached to it.
 app.use(prismaMiddleware);
 app.route("/api/v1", rootRouter);
-app.get("/", async (c) => {
-  c;
-  // const prisma = new PrismaClient({
-  //   datasourceUrl: c.env.DATABASE_URL,
-  // }).$extends(withAccelerate());
-  // const user = await prisma.user.create({
-  //   data: {
-  //     email: "abc@example.com",
-  //     username: "helloabc",
-  //     password: "abchello",
-  //   },
-  // });
-  // if (!user) {
-  //   c.json({ msg: "sad" }, 401);
-  // }
-  // return c.json({ user });
-  const { prisma } = c.var;
-  const user = await prisma.user.create({
-    data: {
-      email: "abcde@exxamsasapdsdskdjskjdle.com",
-      username: "ghghdsdsasasasasassdsdasagxhghg",
-      password: "kddkddxkdk",
-    },
-  });
-  return c.json({ user });
-});
-
 export default app;
