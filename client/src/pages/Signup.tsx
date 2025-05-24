@@ -4,7 +4,7 @@ import { ButtonToSign } from "../components/ButtonToSign";
 import { InputField } from "../components/InputField";
 import { TopHeading } from "../components/TopHeading";
 
-export function Signup() {
+export default function Signup() {
   return (
     <>
       <div className="h-screen w-screen flex items-center justify-center">

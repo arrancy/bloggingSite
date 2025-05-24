@@ -1,7 +1,7 @@
 import { Hero } from "../components/Hero";
 import { Navbar } from "../components/Navbar";
 
-export function LandingPage() {
+export default function LandingPage() {
   console.log("component called");
   return (
     <>

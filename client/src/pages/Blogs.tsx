@@ -1,7 +1,7 @@
 import { BlogButton } from "../components/BlogButton";
 import { Navbar } from "../components/Navbar";
 
-export function Blogs() {
+export default function Blogs() {
   return (
     <>
       <div className="min-h-screen w-full text-center bg-gradient-to-br from-slate-950 to-purple-950 pb-10 pt-4 px-[15%]">

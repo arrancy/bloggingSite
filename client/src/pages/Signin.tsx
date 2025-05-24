@@ -4,7 +4,7 @@ import { ButtonToSign } from "../components/ButtonToSign";
 import { InputField } from "../components/InputField";
 import { TopHeading } from "../components/TopHeading";
 
-export function Signin() {
+export default function Signin() {
   return (
     <div className="h-screen w-screen flex items-center justify-center">
       <div className="shadow-lg shadow-fuchsia-600 rounded-lg px-6 py-4 bg-purple-100">

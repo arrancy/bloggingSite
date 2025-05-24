@@ -1,6 +1,6 @@
 import { Navbar } from "../components/Navbar";
 
-export function CreateBlog() {
+export default function CreateBlog() {
   return (
     <div className="min-h-screen flex flex-col w-screen bg-gradient-to-br from-slate-950 to-fuchsia-950 px-[15%] pt-4">
       <Navbar></Navbar>
