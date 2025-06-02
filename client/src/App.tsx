@@ -1,8 +1,8 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
-import { RecoilRoot } from "recoil";
 import { lazy, Suspense } from "react";
 import { LoaderPage } from "./pages/LoaderPage";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Signin = lazy(() => import("./pages/Signin"));
@@ -10,10 +10,11 @@ const CreateBlog = lazy(() => import("./pages/CreateBlog"));
 const Blogs = lazy(() => import("./pages/Blogs"));
 
 function App() {
+  const queryClient = new QueryClient();
   return (
     <>
-      <BrowserRouter>
-        <RecoilRoot>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
           <Suspense fallback={<LoaderPage></LoaderPage>}>
             <Routes>
               <Route path="/" element={<LandingPage></LandingPage>}></Route>
@@ -26,8 +27,8 @@ function App() {
               <Route path="/Blogs" element={<Blogs></Blogs>}></Route>
             </Routes>
           </Suspense>
-        </RecoilRoot>
-      </BrowserRouter>
+        </BrowserRouter>
+      </QueryClientProvider>
     </>
   );
 }

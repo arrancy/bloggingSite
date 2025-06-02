@@ -13,7 +13,9 @@ export const ErrorMessage = memo(({ label }: ErrorMessageProps) => {
   return (
     isShowing && (
       <>
-        <div className=" text-red-500 text-md ">{label}</div>
+        <div className=" text-red-500 text-md text-center mt-1 transition-all ease-in-out duration-200">
+          {label}
+        </div>
       </>
     )
   );
