@@ -7,6 +7,7 @@ import { TopHeading } from "../components/TopHeading";
 import { useMutation } from "@tanstack/react-query";
 import api from "../axios/baseUrl";
 import { ErrorMessage } from "../components/ErrorMessage";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 // import api from "./../axios/baseUrl"
 // import api from "../axios/baseUrl";
 interface SigninInput {
@@ -25,7 +26,7 @@ export default function Signin() {
       return response;
     },
   });
-  const { isPending, isError } = signinMutation;
+  const { isPending, isError, isSuccess } = signinMutation;
   return (
     <div className="h-screen w-screen flex items-center justify-center">
       <div className="shadow-lg shadow-fuchsia-600 rounded-lg px-6 py-4 bg-purple-100">
@@ -46,12 +47,22 @@ export default function Signin() {
           type="password"
         ></InputField>
         <ButtonToSign
-          onClick={async () => {
-            // const response = api.get("/user/signin", );
-            // const response = await api.post("/user/signin")
-          }}
-          label="Sign In"
-          isLoading={isPending}
+          onClick={
+            isPending
+              ? () => null
+              : async () => {
+                  signinMutation.mutate(signinInput);
+                }
+          }
+          label={
+            isPending ? (
+              <LoadingSpinner></LoadingSpinner>
+            ) : isSuccess ? (
+              "signed in successfully"
+            ) : (
+              "signin"
+            )
+          }
         ></ButtonToSign>
         {isError && (
           <ErrorMessage label={signinMutation.error.message}></ErrorMessage>
