@@ -8,6 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import api from "../axios/baseUrl";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { LoadingSpinner } from "../components/LoadingSpinner";
+import { useNavigate } from "react-router-dom";
 // import api from "./../axios/baseUrl"
 // import api from "../axios/baseUrl";
 interface SigninInput {
@@ -21,10 +22,16 @@ export default function Signin() {
     password: "",
   });
   // const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const signinMutation = useMutation({
     mutationFn: async (signinInput: SigninInput) => {
       const response = await api.post("/user/signin", signinInput);
       return response;
+    },
+    onSuccess: (data) => {
+      if (data.statusText === "OK") {
+        navigate("/blogs");
+      }
     },
   });
   const { isPending, isError, isSuccess } = signinMutation;
