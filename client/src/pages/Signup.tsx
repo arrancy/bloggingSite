@@ -5,9 +5,11 @@ import { ButtonToSign } from "../components/ButtonToSign";
 import { InputField } from "../components/InputField";
 import { TopHeading } from "../components/TopHeading";
 import { useState } from "react";
-import api from "../axios/baseUrl";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
+import { useNavigate } from "react-router-dom";
+import api from "../axios/baseUrl";
+
 interface SignupInput {
   name: string;
   email: string;
@@ -22,10 +24,16 @@ export default function Signup() {
     username: "",
     password: "",
   });
+  const navigate = useNavigate();
   const signupMutation = useMutation({
     mutationFn: async (signupInput: SignupInput) => {
       const response = await api.post("/user/signup", signupInput);
       return response;
+    },
+    onSuccess: (data) => {
+      if (data.statusText === "OK") {
+        navigate("/blogs");
+      }
     },
   });
   const { isPending, isSuccess, isError } = signupMutation;
