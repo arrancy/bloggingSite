@@ -5,6 +5,10 @@ import { withAccelerate } from "@prisma/extension-accelerate";
 import { cors } from "hono/cors";
 import { prismaMiddleware } from "./prismaMiddleware/prismaMiddleware";
 import { GoogleGenAI } from "@google/genai";
+import { getCookie } from "hono/cookie";
+import { StatusCodes } from "./enums/enums";
+import { verify } from "hono/jwt";
+import { AccessTokenPayload } from "./auth/authTypes/AccessTokenPayload";
 const createPrismaClient = () => {
   return new PrismaClient().$extends(withAccelerate());
 };
@@ -43,8 +47,31 @@ app.use(
     origin: "http://localhost:5173",
     allowMethods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
     allowHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
 app.use(prismaMiddleware);
 app.route("/api/v1", rootRouter);
+app.get("/me", async (c) => {
+  try {
+    const receivedToken = getCookie(c, "access_token");
+    if (!receivedToken) {
+      return c.json({ msg: "unauthenticated" }, StatusCodes.unauthenticad);
+    }
+    const { ACCESS_TOKEN_SECRET } = c.env;
+    const decoded = (await verify(
+      receivedToken,
+      ACCESS_TOKEN_SECRET
+    )) as AccessTokenPayload;
+    const { userId } = decoded;
+    const { prisma } = c.var;
+    const userExists = await prisma.user.findFirst({ where: { id: userId } });
+    if (!userExists) {
+      return c.json({ msg: "unauthenticated" }, StatusCodes.unauthenticad);
+    }
+    return c.json({ msg: "good to go!" }, 200);
+  } catch (error) {
+    return c.json({ msg: "unauthernticated" }, StatusCodes.unauthenticad);
+  }
+});
 export default app;
