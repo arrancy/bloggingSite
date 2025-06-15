@@ -9,6 +9,7 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { useNavigate } from "react-router-dom";
 import api from "../axios/baseUrl";
+import useAuthentication from "../utils/amIAuthenticated";
 
 interface SignupInput {
   name: string;
@@ -24,7 +25,9 @@ export default function Signup() {
     username: "",
     password: "",
   });
+  const { isChecking, isLoggedIn } = useAuthentication();
   const navigate = useNavigate();
+
   const signupMutation = useMutation({
     mutationFn: async (signupInput: SignupInput) => {
       const response = await api.post("/user/signup", signupInput);
@@ -37,7 +40,9 @@ export default function Signup() {
     },
   });
   const { isPending, isSuccess, isError } = signupMutation;
-  return (
+  return isChecking ? (
+    <LoadingSpinner></LoadingSpinner>
+  ) : !isChecking && !isLoggedIn ? (
     <>
       <div className="h-screen w-screen flex items-center justify-center">
         <div className="shadow-2xl shadow-fuchsia-600 px-6 py-4 rounded-lg">
@@ -61,14 +66,20 @@ export default function Signup() {
             label="username"
             type="text"
             onChange={(event) => {
-              setSignupInput({ ...signupInput, username: event.target.value });
+              setSignupInput({
+                ...signupInput,
+                username: event.target.value,
+              });
             }}
           />
           <InputField
             label="password"
             type="password"
             onChange={(event) => {
-              setSignupInput({ ...signupInput, password: event.target.value });
+              setSignupInput({
+                ...signupInput,
+                password: event.target.value,
+              });
             }}
           />
           <ButtonToSign
@@ -94,5 +105,7 @@ export default function Signup() {
         </div>
       </div>
     </>
+  ) : (
+    navigate("/blogs")
   );
 }
