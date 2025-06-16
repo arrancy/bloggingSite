@@ -6,7 +6,7 @@ import { Variables } from "../..";
 import z from "zod";
 import bcrypt from "bcrypt-edge";
 import { Resend } from "resend";
-import { setCookie } from "hono/cookie";
+import { deleteCookie, setCookie } from "hono/cookie";
 import { accessTokenCookieOptions } from "../../auth/cookieOptions/accessTokenCookieOptions";
 import { refreshTokenCookieOptions } from "../../auth/cookieOptions/refreshTokenCookieOptions";
 import { StatusCodes } from "../../enums/enums";
@@ -15,6 +15,7 @@ import { verify } from "hono/jwt";
 import { RefreshTokenPayload } from "../../auth/authTypes/RefreshTokenPayload";
 import { generateAccessAndRefreshToken } from "../../auth/authUtils/generateAccessAndRefreshToken";
 import { signinSchema } from "../../zodTypes/signinSchema";
+import { authMiddleware } from "../../auth/authMiddleWare";
 interface Env extends Variables, Bindings {
   Bindings: Bindings;
   Variables: Variables;
@@ -405,4 +406,10 @@ userRouter.get("/refreshToken", async (c) => {
       StatusCodes.internalServerError
     );
   }
+});
+
+userRouter.get("/logout", authMiddleware, (c) => {
+  deleteCookie(c, "access_token");
+  deleteCookie(c, "refresh_token");
+  return c.json({ msg: "logged out successfully" }, 200);
 });

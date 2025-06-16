@@ -54,7 +54,9 @@ app.use(prismaMiddleware);
 app.route("/api/v1", rootRouter);
 app.get("/me", async (c) => {
   try {
+    console.log("reached request");
     const receivedToken = getCookie(c, "access_token");
+    console.log(receivedToken);
     if (!receivedToken) {
       return c.json({ msg: "unauthenticated" }, StatusCodes.unauthenticad);
     }
@@ -71,6 +73,7 @@ app.get("/me", async (c) => {
     }
     return c.json({ msg: "good to go!" }, 200);
   } catch (error) {
+    console.log("here");
     return c.json({ msg: "unauthernticated" }, StatusCodes.unauthenticad);
   }
 });
