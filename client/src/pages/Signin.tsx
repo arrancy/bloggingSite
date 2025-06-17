@@ -9,6 +9,8 @@ import api from "../axios/baseUrl";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { useNavigate } from "react-router-dom";
+import useAuthentication from "../utils/amIAuthenticated";
+import { LoaderPage } from "./LoaderPage";
 // import api from "./../axios/baseUrl"
 // import api from "../axios/baseUrl";
 interface SigninInput {
@@ -21,6 +23,7 @@ export default function Signin() {
     email: "",
     password: "",
   });
+  const { isChecking, isLoggedIn } = useAuthentication();
   // const queryClient = useQueryClient();
   const navigate = useNavigate();
   const signinMutation = useMutation({
@@ -35,7 +38,11 @@ export default function Signin() {
     },
   });
   const { isPending, isError, isSuccess } = signinMutation;
-  return (
+  return isChecking ? (
+    <LoaderPage />
+  ) : isLoggedIn ? (
+    navigate("/blogs")
+  ) : (
     <div className="h-screen w-screen flex items-center justify-center">
       <div className="shadow-lg shadow-fuchsia-600 rounded-lg px-6 py-4 bg-purple-100">
         <TopHeading label="Sign in"></TopHeading>

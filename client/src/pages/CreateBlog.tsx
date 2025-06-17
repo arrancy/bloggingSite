@@ -1,7 +1,14 @@
+import { useNavigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
+import useAuthentication from "../utils/amIAuthenticated";
+import { LoaderPage } from "./LoaderPage";
 
 export default function CreateBlog() {
-  return (
+  const { isChecking, isLoggedIn } = useAuthentication();
+  const navigate = useNavigate();
+  return isChecking ? (
+    <LoaderPage />
+  ) : isLoggedIn ? (
     <div className="min-h-screen flex flex-col w-screen bg-gradient-to-br from-slate-950 to-fuchsia-950 px-[15%] pt-4">
       <Navbar></Navbar>
       <div className=" w-full flex flex-col flex-1  mx-auto ">
@@ -27,5 +34,7 @@ export default function CreateBlog() {
         </div>
       </div>
     </div>
+  ) : (
+    navigate("/signin")
   );
 }
