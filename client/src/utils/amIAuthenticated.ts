@@ -1,24 +1,28 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
-import api from "../axios/baseUrl";
 
 const amIAuthenticated = async () => {
-  const response = await axios.get("http://localhost:8787/me", {
-    withCredentials: true,
-  });
-  if (response.status === 200) {
-    return true;
-  } else {
-    const refreshTokenResponse = await api.get("/user/refreshToken");
-    if (refreshTokenResponse.status === 200) {
-      const newResponse = await axios.get("http://localhost:8787/me", {
-        withCredentials: true,
-      });
-      if (newResponse.status === 200) {
-        return true;
+  try {
+    const response = await fetch("http://localhost:8787/me");
+    if (response.ok) {
+      return true;
+    } else {
+      const refreshTokenResponse = await fetch(
+        "http://localhost:8787/api/v1/user/refreshToken"
+      );
+      if (refreshTokenResponse.ok) {
+        const newResponse = await fetch("http://localhost:8787/me");
+        if (newResponse.ok) {
+          return true;
+        } else {
+          return false;
+        }
       } else {
         return false;
       }
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
     }
   }
 };

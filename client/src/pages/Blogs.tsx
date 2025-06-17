@@ -3,6 +3,7 @@ import { BlogButton } from "../components/BlogButton";
 import { Navbar } from "../components/Navbar";
 import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
+// import { nav } from "motion/react-client";
 
 export default function Blogs() {
   const { isChecking, isLoggedIn } = useAuthentication();
@@ -36,7 +37,9 @@ export default function Blogs() {
         </div>
       </div>
     </>
-  ) : (
+  ) : !isChecking && !isLoggedIn ? (
     navigate("/signin")
+  ) : (
+    <></>
   );
 }
