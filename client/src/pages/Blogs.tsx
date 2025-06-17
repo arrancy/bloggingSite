@@ -1,8 +1,15 @@
+import { useNavigate } from "react-router-dom";
 import { BlogButton } from "../components/BlogButton";
 import { Navbar } from "../components/Navbar";
+import useAuthentication from "../utils/amIAuthenticated";
+import { LoaderPage } from "./LoaderPage";
 
 export default function Blogs() {
-  return (
+  const { isChecking, isLoggedIn } = useAuthentication();
+  const navigate = useNavigate();
+  return isChecking ? (
+    <LoaderPage />
+  ) : isLoggedIn ? (
     <>
       <div className="min-h-screen w-full text-center bg-gradient-to-br from-slate-950 to-purple-950 pb-10 pt-4 px-[15%]">
         <Navbar></Navbar>
@@ -29,5 +36,7 @@ export default function Blogs() {
         </div>
       </div>
     </>
+  ) : (
+    navigate("/signin")
   );
 }

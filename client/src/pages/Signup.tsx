@@ -10,6 +10,7 @@ import { ErrorMessage } from "../components/ErrorMessage";
 import { useNavigate } from "react-router-dom";
 import api from "../axios/baseUrl";
 import useAuthentication from "../utils/amIAuthenticated";
+import { LoaderPage } from "./LoaderPage";
 
 interface SignupInput {
   name: string;
@@ -41,7 +42,7 @@ export default function Signup() {
   });
   const { isPending, isSuccess, isError } = signupMutation;
   return isChecking ? (
-    <LoadingSpinner></LoadingSpinner>
+    <LoaderPage></LoaderPage>
   ) : !isChecking && !isLoggedIn ? (
     <>
       <div className="h-screen w-screen flex items-center justify-center">

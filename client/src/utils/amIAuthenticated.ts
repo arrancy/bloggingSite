@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import api from "../axios/baseUrl";
 
 const amIAuthenticated = async () => {
   const response = await axios.get("http://localhost:8787/me", {
@@ -8,7 +9,17 @@ const amIAuthenticated = async () => {
   if (response.status === 200) {
     return true;
   } else {
-    return false;
+    const refreshTokenResponse = await api.get("/user/refreshToken");
+    if (refreshTokenResponse.status === 200) {
+      const newResponse = await axios.get("http://localhost:8787/me", {
+        withCredentials: true,
+      });
+      if (newResponse.status === 200) {
+        return true;
+      } else {
+        return false;
+      }
+    }
   }
 };
 
