@@ -6,7 +6,7 @@ import { Variables } from "../..";
 import z from "zod";
 import bcrypt from "bcrypt-edge";
 import { Resend } from "resend";
-import { deleteCookie, setCookie } from "hono/cookie";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { accessTokenCookieOptions } from "../../auth/cookieOptions/accessTokenCookieOptions";
 import { refreshTokenCookieOptions } from "../../auth/cookieOptions/refreshTokenCookieOptions";
 import { StatusCodes } from "../../enums/enums";
@@ -331,6 +331,14 @@ userRouter.post("/signin", async (c) => {
   }
   const { id, username } = userExists;
   // now the logic to check from how many devices is this person logged in from
+
+  // check and remove stale refresh tokens
+  const sevenDaysBefore = new Date();
+  sevenDaysBefore.setDate(sevenDaysBefore.getDate() - 7);
+  const refreshTokensDeleted = await prisma.refreshToken.deleteMany({
+    where: { createdAt: { lte: sevenDaysBefore } },
+  });
+
   const refreshTokens = await prisma.refreshToken.findMany({
     where: { userId: id },
   });
@@ -352,6 +360,15 @@ userRouter.post("/signin", async (c) => {
         ACCESS_TOKEN_SECRET,
         REFRESH_TOKEN_SECRET
       );
+    const refreshTokenInDatabase = await prisma.refreshToken.create({
+      data: { jti, token: refreshToken, userId: id },
+    });
+    if (!refreshTokenInDatabase) {
+      return c.json(
+        { msg: "an unknown error occured, retry please" },
+        StatusCodes.internalServerError
+      );
+    }
     setCookie(c, "access_token", accessToken, accessTokenCookieOptions);
     setCookie(c, "refresh_token", refreshToken, refreshTokenCookieOptions);
     return c.json({ msg: "logged in successfully" }, 200);
@@ -361,7 +378,7 @@ userRouter.post("/signin", async (c) => {
 });
 userRouter.get("/refreshToken", async (c) => {
   try {
-    const receivedToken = c.req.header("Authorization");
+    const receivedToken = getCookie(c, "refresh_token");
     const { prisma } = c.var;
     if (!receivedToken) {
       return c.json(
@@ -376,6 +393,7 @@ userRouter.get("/refreshToken", async (c) => {
     const oldJti = decoded.jti;
     const userExists = await prisma.user.findFirst({ where: { id: userId } });
     if (!userExists) {
+      console.log("user does not exist");
       return c.json({ msg: "invalid credentials" }, StatusCodes.unauthenticad);
     }
     const { username } = userExists;
@@ -383,6 +401,7 @@ userRouter.get("/refreshToken", async (c) => {
       where: { jti: oldJti, userId, token: receivedToken },
     });
     if (!refreshTokenFound) {
+      console.log("refresh token not in database");
       return c.json({ msg: "invalid credentials" }, StatusCodes.unauthenticad);
     }
 
