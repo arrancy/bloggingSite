@@ -3,6 +3,7 @@ import "./App.css";
 import { lazy, Suspense } from "react";
 import { LoaderPage } from "./pages/LoaderPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BlogDashboard } from "./pages/BlogDashboard";
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Signin = lazy(() => import("./pages/Signin"));
@@ -25,6 +26,10 @@ function App() {
                 element={<CreateBlog></CreateBlog>}
               ></Route>
               <Route path="/Blogs" element={<Blogs></Blogs>}></Route>
+              <Route
+                path="/dashboard"
+                element={<BlogDashboard></BlogDashboard>}
+              ></Route>
             </Routes>
           </Suspense>
         </BrowserRouter>

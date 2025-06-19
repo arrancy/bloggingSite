@@ -1,11 +1,10 @@
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
 
 export default function CreateBlog() {
   const { isChecking, isLoggedIn } = useAuthentication();
-  const navigate = useNavigate();
   return isChecking ? (
     <LoaderPage />
   ) : isLoggedIn ? (
@@ -35,6 +34,6 @@ export default function CreateBlog() {
       </div>
     </div>
   ) : (
-    navigate("/signin")
+    <Navigate to="/signin"></Navigate>
   );
 }

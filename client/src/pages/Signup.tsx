@@ -8,6 +8,7 @@ import { useState } from "react";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import api from "../axios/baseUrl";
 import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
@@ -107,6 +108,6 @@ export default function Signup() {
       </div>
     </>
   ) : (
-    navigate("/blogs")
+    <Navigate to="/blogs" replace />
   );
 }

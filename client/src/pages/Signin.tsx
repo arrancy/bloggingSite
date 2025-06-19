@@ -8,7 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import api from "../axios/baseUrl";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { LoadingSpinner } from "../components/LoadingSpinner";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
 // import api from "./../axios/baseUrl"
@@ -41,7 +41,7 @@ export default function Signin() {
   return isChecking ? (
     <LoaderPage />
   ) : isLoggedIn ? (
-    navigate("/blogs")
+    <Navigate to={"/blogs"}></Navigate>
   ) : (
     <div className="h-screen w-screen flex items-center justify-center">
       <div className="shadow-lg shadow-fuchsia-600 rounded-lg px-6 py-4 bg-purple-100">

@@ -1,13 +1,15 @@
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { BlogButton } from "../components/BlogButton";
 import { Navbar } from "../components/Navbar";
 import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
+// import { useQuery } from "@tanstack/react-query";
 // import { nav } from "motion/react-client";
 
 export default function Blogs() {
   const { isChecking, isLoggedIn } = useAuthentication();
-  const navigate = useNavigate();
+  // const {isPending, isSuccess, isError, data} = useQuery({queryKey : ["getBlogs"], queryFn : async ()=>{
+  // }})
   return isChecking ? (
     <LoaderPage />
   ) : isLoggedIn ? (
@@ -38,7 +40,7 @@ export default function Blogs() {
       </div>
     </>
   ) : !isChecking && !isLoggedIn ? (
-    navigate("/signin")
+    <Navigate to="/signin"></Navigate>
   ) : (
     <></>
   );
