@@ -3,12 +3,12 @@ import "./App.css";
 import { lazy, Suspense } from "react";
 import { LoaderPage } from "./pages/LoaderPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BlogDashboard } from "./pages/BlogDashboard";
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Signin = lazy(() => import("./pages/Signin"));
 const CreateBlog = lazy(() => import("./pages/CreateBlog"));
 const Blogs = lazy(() => import("./pages/Blogs"));
+const BlogDashboard = lazy(() => import("./pages/BlogDashboard"));
 
 function App() {
   const queryClient = new QueryClient();
