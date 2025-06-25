@@ -248,6 +248,9 @@ userRouter.get("/verify", async (c) => {
         StatusCodes.unauthenticad
       );
     }
+    if (userExists.verified) {
+      return c.json({ msg: " email already verified " }, StatusCodes.conflict);
+    }
     const verificationTokenValid = await prisma.verification_token.findFirst({
       where: { token: verification_token },
     });
