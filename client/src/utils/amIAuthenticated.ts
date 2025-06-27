@@ -33,7 +33,7 @@ const amIAuthenticated = async () => {
 };
 
 const useAuthentication = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [isChecking, setIsChecking] = useState<boolean>(true);
   useEffect(() => {
     setIsChecking(true);

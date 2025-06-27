@@ -13,14 +13,14 @@ export function DashboardBlogElement() {
   const { isChecking, isLoggedIn } = useAuthentication();
   const userBlogs = useQuery({
     queryKey: ["userBlogs"],
-    queryFn: isLoggedIn
-      ? async () => {
-          const response = await api.get("/blog/blogsOfUser");
-          return response.data;
-        }
-      : () => null,
+    queryFn: async () => {
+      const response = await api.get("/blog/blogsOfUser");
+      return response.data;
+    },
+    enabled: isLoggedIn,
   });
   const { isError, isLoading, data, error } = userBlogs;
+
   return isChecking ? (
     <LoaderPage></LoaderPage>
   ) : !isChecking && isLoggedIn ? (
@@ -34,7 +34,7 @@ export function DashboardBlogElement() {
       </div>
     ) : (
       <>
-        {data.map((blog: BlogsResponseObject, index: number) => {
+        {data.blogs.map((blog: BlogsResponseObject, index: number) => {
           return (
             <BlogButton
               heading={blog.title}
