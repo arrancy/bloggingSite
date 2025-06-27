@@ -1,105 +1,51 @@
-import { AlertTriangle, NotebookPen } from "lucide-react";
-import { motion } from "framer-motion";
-
+import { useQuery } from "@tanstack/react-query";
+import api from "../axios/baseUrl";
+import useAuthentication from "../utils/amIAuthenticated";
+import { LoaderPage } from "../pages/LoaderPage";
+import { Navigate } from "react-router-dom";
+import { LoadingSpinner } from "./LoadingSpinner";
+import { BlogButton } from "./BlogButton";
+interface BlogsResponseObject {
+  title: string;
+  content: string;
+}
 export function DashboardBlogElement() {
-  return (
-    <>
-      <motion.div
-        initial={{ x: -24, opacity: 0 }}
-        animate={{
-          x: 0,
-          opacity: 1,
-        }}
-        transition={{
-          default: { type: "spring", duration: 0.6, bounce: 0.5, delay: 0.5 },
-          opacity: { ease: "easeIn", duration: 0.2, delay: 0.5 },
-        }}
-        className="text-left bg-inherit mt-16 w-[70%] mx-auto"
-      >
-        <div className="flex justify-between w-[97%]">
-          <div className="flex space-x-3 bprder border-b-3 w-fit border-b-purple-500 drop-shadow-blue-400 drop-shadow-2xl">
-            <NotebookPen className="h-10 text-neutral-50 "></NotebookPen>
-            <div className="text-3xl font-semibold text-green-300">
-              hey this is my first blog
-            </div>
-          </div>
-          <div className=" flex space-x-1 border-2 rounded-lg border-amber-800 px-2 pt-1 ">
-            <div className="text-2xl font-semibold text-red-200">draft</div>
-            <AlertTriangle className=" h-9 text-amber-900"> </AlertTriangle>
-          </div>
-        </div>
-
-        <div className="text-cyan-700 text-xl font-medium mt-2">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Deserunt
-          similique dolorem molestias, dicta sapiente pariatur quisquam a
-          praesentium itaque! Labore saepe ab deserunt voluptas ducimus dolores
-          eveniet libero corrupti possimus.
-        </div>
-      </motion.div>
-      <motion.div
-        initial={{ x: -24, opacity: 0 }}
-        animate={{
-          x: 0,
-          opacity: 1,
-        }}
-        transition={{
-          default: { type: "spring", duration: 0.6, bounce: 0.5, delay: 0.8 },
-          opacity: { ease: "easeIn", duration: 0.2, delay: 0.8 },
-        }}
-        className="text-left bg-inherit mt-16 w-[70%] mx-auto"
-      >
-        <div className="flex justify-between w-[97%]">
-          <div className="flex space-x-3 bprder border-b-3 w-fit border-b-purple-500 drop-shadow-blue-400 drop-shadow-2xl">
-            <NotebookPen className="h-10 text-neutral-50 "></NotebookPen>
-            <div className="text-3xl font-semibold text-green-300">
-              hey this is my first blog
-            </div>
-          </div>
-          <div className=" flex space-x-1 border-2 rounded-lg border-amber-800 px-2 pt-1 ">
-            <div className="text-2xl font-semibold text-red-200">draft</div>
-            <AlertTriangle className=" h-9 text-amber-900"> </AlertTriangle>
-          </div>
-        </div>
-
-        <div className="text-cyan-700 text-xl font-medium mt-2">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Deserunt
-          similique dolorem molestias, dicta sapiente pariatur quisquam a
-          praesentium itaque! Labore saepe ab deserunt voluptas ducimus dolores
-          eveniet libero corrupti possimus.
-        </div>
-      </motion.div>
-      <motion.div
-        initial={{ x: -24, opacity: 0 }}
-        animate={{
-          x: 0,
-          opacity: 1,
-        }}
-        transition={{
-          default: { type: "spring", duration: 0.6, bounce: 0.5, delay: 1.2 },
-          opacity: { ease: "easeIn", duration: 0.2, delay: 1.2 },
-        }}
-        className="text-left bg-inherit mt-16 w-[70%] mx-auto"
-      >
-        <div className="flex justify-between w-[97%]">
-          <div className="flex space-x-3 bprder border-b-3 w-fit border-b-purple-500 drop-shadow-blue-400 drop-shadow-2xl">
-            <NotebookPen className="h-10 text-neutral-50 "></NotebookPen>
-            <div className="text-3xl font-semibold text-green-300">
-              hey this is my first blog
-            </div>
-          </div>
-          <div className=" flex space-x-1 border-2 rounded-lg border-amber-800 px-2 pt-1 ">
-            <div className="text-2xl font-semibold text-red-200">draft</div>
-            <AlertTriangle className=" h-9 text-amber-900"> </AlertTriangle>
-          </div>
-        </div>
-
-        <div className="text-cyan-700 text-xl font-medium mt-2">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Deserunt
-          similique dolorem molestias, dicta sapiente pariatur quisquam a
-          praesentium itaque! Labore saepe ab deserunt voluptas ducimus dolores
-          eveniet libero corrupti possimus.
-        </div>
-      </motion.div>
-    </>
+  const { isChecking, isLoggedIn } = useAuthentication();
+  const userBlogs = useQuery({
+    queryKey: ["userBlogs"],
+    queryFn: isLoggedIn
+      ? async () => {
+          const response = await api.get("/blog/blogsOfUser");
+          return response.data;
+        }
+      : () => null,
+  });
+  const { isError, isLoading, data, error } = userBlogs;
+  return isChecking ? (
+    <LoaderPage></LoaderPage>
+  ) : !isChecking && isLoggedIn ? (
+    isLoading ? (
+      <div className="flex items-center justify-center">
+        <LoadingSpinner></LoadingSpinner>
+      </div>
+    ) : isError ? (
+      <div className="text-red-400 font-medium text-xl ">
+        an error occured : {" " + error.message}
+      </div>
+    ) : (
+      <>
+        {data.map((blog: BlogsResponseObject, index: number) => {
+          return (
+            <BlogButton
+              heading={blog.title}
+              blogContent={blog.content.slice(0, 100)}
+              animationDelay={0.8 + 0.4 * index}
+            ></BlogButton>
+          );
+        })}
+      </>
+    )
+  ) : (
+    <Navigate to={"/signin"}></Navigate>
   );
 }
