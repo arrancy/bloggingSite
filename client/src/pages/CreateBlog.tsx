@@ -10,19 +10,19 @@ export default function CreateBlog() {
   ) : isLoggedIn ? (
     <div className="min-h-screen flex flex-col w-screen bg-gradient-to-br from-slate-950 to-fuchsia-950 px-[15%] pt-4">
       <Navbar></Navbar>
-      <div className=" w-full flex flex-col flex-1  mx-auto ">
-        <div className="w-full flex flex-row shadow-fuchsia-700 bg-white shadow-md rounded-lg px-4 py-4">
+      <div className=" w-full flex flex-col flex-1  mx-auto my-8 shadow-md rounded-2xl  bg-fuchsia-950/40 backdrop-blur-xl border-2 border-purple-950 focus-within:shadow-sky-500 transition-shadow ease-in-out duration-200">
+        <div className="w-full flex flex-row  rounded-lg px-4 pt-4 ">
           <textarea
-            className="flex-1 resize- focus:outline-none text-4xl font-bold  text-slate-950 resize-none "
+            className="flex-1  focus:outline-none text-4xl bg-transparent font-bold  text-purple-200 resize-none placeholder-purple-900 tracking-wide   "
             placeholder="enter your title here"
           ></textarea>
-          <button className="bg-fuchsia-900 font-bold text-lg px-3 rounded-3xl my-3  text-fuchsia-100 ">
+          <button className="bg-fuchsia-900 font-semibold  h-12 border-2 border-fuchsia-300 text-lg px-3 rounded-xl mt-1 cursor-pointer hover:bg-fuchsia-300 hover:text-fuchsia-900  text-fuchsia-300 ">
             done
           </button>
         </div>
-        <div className=" flex flex-row flex-1 my-6 bg-white rounded-lg shadow-fuchsia-900 shadow-md ">
+        <div className=" flex flex-row flex-1 mt-1  rounded-lg  ">
           <textarea
-            className=" flex-1 resize-none px-4 py-2 text-lg  font-semibold text-slate-800 focus:outline-none"
+            className=" flex-1 resize-none px-4 py-2 text-lg  font-semibold text-slate-100 focus:outline-none "
             placeholder="enter your blog text here"
           ></textarea>
           <div className="">
