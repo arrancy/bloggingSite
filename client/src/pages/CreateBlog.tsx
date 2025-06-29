@@ -8,29 +8,25 @@ export default function CreateBlog() {
   return isChecking ? (
     <LoaderPage />
   ) : isLoggedIn ? (
-    <div className="min-h-screen flex flex-col w-screen bg-gradient-to-br from-slate-950 to-fuchsia-950 px-[15%] pt-4">
+    <div className="min-h-screen w-screen bg-gradient-to-br from-slate-950 to-fuchsia-950 px-[15%] pt-8 pb-16">
       <Navbar></Navbar>
-      <div className=" w-full flex flex-col flex-1  mx-auto my-8 shadow-md rounded-2xl  bg-fuchsia-950/40 backdrop-blur-xl border-2 border-purple-950 focus-within:shadow-sky-500 transition-shadow ease-in-out duration-200">
-        <div className="w-full flex flex-row  rounded-lg px-4 pt-4 ">
+      <div className=" w-full mx-auto mt-24  shadow-md rounded-2xl  bg-fuchsia-950/40 backdrop-blur-xl border-2 border-purple-950 focus-within:shadow-sky-500 transition-shadow ease-in-out duration-200">
+        <div className="w-full  px-4 rounded-lg  pt-4 ">
           <textarea
-            className="flex-1  focus:outline-none text-4xl bg-transparent font-bold  text-purple-200 resize-none placeholder-purple-900 tracking-wide   "
-            placeholder="enter your title here"
+            className="w-full resize-none field-sizing-content py-3 focus:outline-none  text-4xl bg-transparent font-bold  text-purple-200  placeholder-purple-900 tracking-wide   "
+            placeholder="enter your title here..."
           ></textarea>
-          <button className="bg-fuchsia-900 font-semibold  h-12 border-2 border-fuchsia-300 text-lg px-3 rounded-xl mt-1 cursor-pointer hover:bg-fuchsia-300 hover:text-fuchsia-900  text-fuchsia-300 ">
-            done
-          </button>
         </div>
-        <div className=" flex flex-row flex-1 mt-1  rounded-lg  ">
+        <div className="   px-5 mt-1  rounded-lg  ">
           <textarea
-            className=" flex-1 resize-none px-4 py-2 text-lg  font-semibold text-slate-100 focus:outline-none "
-            placeholder="enter your blog text here"
+            className="  resize-none w-full field-sizing-content py-2 text-xl tracking-wide  font-light text-slate-100 placeholder-purple-700/40  focus:outline-none "
+            placeholder="enter your blog text here..."
           ></textarea>
-          <div className="">
-            <button className="font-semibold text-fuchsia-950 text-xl bg-fuchsia-200 p-4 rounded-2xl hover:cursor-pointer hover:bg-fuchsia-300 relative mx-2 top-[83%]">
-              done
-            </button>
-          </div>
         </div>
+
+        <button className="bg-fuchsia-900 font-semibold w-18 ml-[92%] mb-3.5 h-12 border-2 border-fuchsia-300 text-lg px-3 rounded-xl mt-1 cursor-pointer hover:bg-fuchsia-900/70 hover:border-fuchsia-400/20 text-fuchsia-300 ">
+          done
+        </button>
       </div>
     </div>
   ) : (
