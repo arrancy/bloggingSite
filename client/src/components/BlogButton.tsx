@@ -3,13 +3,13 @@ import { motion } from "motion/react";
 
 interface BlogButtonProps {
   heading: string;
-  blogContent: string;
   animationDelay: number;
+  isDraft: boolean;
 }
 
 export function BlogButton({
   heading,
-  blogContent,
+  isDraft,
   animationDelay,
 }: BlogButtonProps) {
   return (
@@ -32,20 +32,25 @@ export function BlogButton({
         className="text-left bg-inherit mt-16 w-[70%] mx-auto"
       >
         <div className="flex justify-between w-[97%]">
-          <div className="flex space-x-3  border-b-3 w-fit border-b-purple-500 drop-shadow-blue-400 drop-shadow-2xl">
-            <NotebookPen className="h-10 text-neutral-50 "></NotebookPen>
+          <div className="flex space-x-3  w-fit  drop-shadow-2xl">
+            <div className="shrink-0 pt-2">
+              <NotebookPen
+                // size={30}
+                className="max-h-7 max-w-7 h-7 w-7 text-neutral-50 "
+              ></NotebookPen>
+            </div>
             <div className="text-3xl font-semibold text-green-300">
-              {heading}{" "}
+              {heading}
             </div>
           </div>
-          <div className=" flex space-x-1 border-2 rounded-lg border-purple-600 px-2 pt-1 ">
+          <div
+            className={`flex space-x-1 border-2 rounded-lg border-purple-600 px-2 pt-1 max-h-12 ${
+              isDraft ? `visible` : `hidden`
+            } `}
+          >
             <div className="text-2xl font-semibold text-blue-200">draft</div>
             <ClipboardPen className=" h-9 text-cyan-400"> </ClipboardPen>
           </div>
-        </div>
-
-        <div className="text-cyan-700 text-xl font-medium mt-2">
-          {blogContent}
         </div>
       </motion.div>
     </>

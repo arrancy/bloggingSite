@@ -10,6 +10,7 @@ import { BlogButton } from "../components/BlogButton";
 interface BlogsResponseObject {
   title: string;
   content: string;
+  isDraft: boolean;
 }
 export default function BlogDashboard() {
   const { isChecking, isLoggedIn } = useAuthentication();
@@ -36,11 +37,13 @@ export default function BlogDashboard() {
       <DashboardHeading></DashboardHeading>
       <>
         {data.blogs.map((blog: BlogsResponseObject, index: number) => {
+          console.log(blog.isDraft);
           return (
             <BlogButton
+              key={index}
               heading={blog.title}
-              blogContent={blog.content.slice(0, 100)}
               animationDelay={0.8 + 0.4 * index}
+              isDraft={blog.isDraft}
             ></BlogButton>
           );
         })}
