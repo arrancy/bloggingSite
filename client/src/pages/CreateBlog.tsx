@@ -2,9 +2,23 @@ import { Navigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
+import { useEffect, useState } from "react";
+import { SendToAiMenu } from "../components/SendToAiMenu";
 
 export default function CreateBlog() {
   const { isChecking, isLoggedIn } = useAuthentication();
+  const [selection, setSelection] = useState<string>("");
+  useEffect(() => {
+    document.addEventListener("selectionchange", () => {
+      const selectionObject = document.getSelection();
+      if (!selectionObject) {
+        return;
+      }
+      const selectionString = selectionObject.toString();
+      console.log(selectionString);
+      setSelection(selectionString);
+    });
+  }, []);
   return isChecking ? (
     <LoaderPage />
   ) : isLoggedIn ? (
@@ -28,6 +42,10 @@ export default function CreateBlog() {
           done
         </button>
       </div>
+      <div className=" border-2 border-amber-200 text-2xl text-white ">
+        {selection}
+      </div>
+      <SendToAiMenu></SendToAiMenu>
     </div>
   ) : (
     <Navigate to="/signin"></Navigate>
