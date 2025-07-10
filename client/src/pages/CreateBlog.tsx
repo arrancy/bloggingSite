@@ -2,29 +2,70 @@ import { Navigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SendToAiMenu } from "../components/SendToAiMenu";
-
+interface SelectionPosition {
+  x: number | null;
+  y: number | null;
+  width: number | null;
+  height: number | null;
+}
 export default function CreateBlog() {
   const { isChecking, isLoggedIn } = useAuthentication();
   const [selection, setSelection] = useState<string>("");
+  const [selectionPosition, setSelectionPosition] = useState<SelectionPosition>(
+    { x: null, y: null, width: null, height: null }
+  );
+  const [isSelectionInsideInput, setIsSelectionInsideInput] =
+    useState<boolean>(false);
+  const [isSelectionEnded, setIsSelectionEnded] = useState<boolean>(false);
+  const inputRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     document.addEventListener("selectionchange", () => {
+      if (isSelectionEnded) {
+        setIsSelectionEnded(false);
+      }
       const selectionObject = document.getSelection();
       if (!selectionObject) {
         return;
       }
       const selectionString = selectionObject.toString();
-      console.log(selectionString);
+      if (!selectionString) return;
+      const boundingRectangle = selectionObject
+        .getRangeAt(0)
+        .getBoundingClientRect();
+      const { x, y, width, height } = boundingRectangle;
+      if (!inputRef.current) return;
+      const inputElement = inputRef.current;
+      if (
+        !(
+          inputElement.contains(selectionObject.anchorNode) &&
+          inputElement.contains(selectionObject.focusNode)
+        )
+      )
+        return;
+      setIsSelectionInsideInput(true);
+      setSelectionPosition({ x, y, width, height });
       setSelection(selectionString);
     });
-  }, []);
+  }, [isSelectionEnded]);
   return isChecking ? (
     <LoaderPage />
   ) : isLoggedIn ? (
     <div className="min-h-screen w-screen bg-gradient-to-br from-slate-950 to-fuchsia-950 px-[15%] pt-8 pb-16">
       <Navbar></Navbar>
-      <div className=" w-full mx-auto mt-24  shadow-md rounded-2xl  bg-fuchsia-950/40 backdrop-blur-xl border-2 border-purple-950 focus-within:shadow-sky-500 transition-shadow ease-in-out duration-200">
+      <div
+        ref={inputRef}
+        onMouseUp={() => {
+          if (isSelectionInsideInput && selection) {
+            setIsSelectionEnded(true);
+          }
+        }}
+        onMouseDown={() => {
+          setSelection("");
+        }}
+        className=" w-full mx-auto mt-24  shadow-md rounded-2xl  bg-fuchsia-950/40 backdrop-blur-xl border-2 border-purple-950 focus-within:shadow-sky-500 transition-shadow ease-in-out duration-200"
+      >
         <div className="w-full  px-4 rounded-lg  pt-4 ">
           <textarea
             className="w-full resize-none field-sizing-content py-3 focus:outline-none  text-4xl bg-transparent font-bold  text-purple-200  placeholder-purple-900 tracking-wide   "
@@ -45,7 +86,7 @@ export default function CreateBlog() {
       <div className=" border-2 border-amber-200 text-2xl text-white ">
         {selection}
       </div>
-      <SendToAiMenu></SendToAiMenu>
+      {isSelectionEnded && <SendToAiMenu></SendToAiMenu>}
     </div>
   ) : (
     <Navigate to="/signin"></Navigate>
