@@ -1,15 +1,23 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
-
-export function SendToAiMenu() {
+interface SelectionPositionProps {
+  x: number;
+  y: number;
+}
+export function SendToAiMenu({ x, y }: SelectionPositionProps) {
   //   const [inputBoxOpen, setInputBoxOpen] = useState<boolean>(false);
+  console.log(x, y);
   const [exitAnimation, setExitAnimation] = useState<boolean>(false);
   const [isDialogueBoxOpen, setIsDialogueBoxOpen] = useState<boolean>(false);
   const [isCustonPromptOpen, setIsCustomPromptOpen] = useState<boolean>(false);
+
   const tones = ["casual", "formal", "funny", "friendly"];
   return isCustonPromptOpen ? (
-    <div className=" bg-slate-800 w-fit rounded-lg p-2  ">
+    <div
+      className=" bg-slate-800 w-fit rounded-lg p-2  "
+      style={{ position: "absolute", top: `${y}px`, left: `${x}px` }}
+    >
       <textarea
         className="border-0 resize-none field-sizing-content text-lg font-light placeholder:text-slate-600 rounded-lg p-3 w-80 outline-none text-slate-300 tracking-wide "
         placeholder="eg: make this text more persuasive"
@@ -29,7 +37,10 @@ export function SendToAiMenu() {
       </div>
     </div>
   ) : (
-    <div className="flex text-slate-300  w-fit absolute top-[100px] left-20 ">
+    <div
+      className={`flex text-slate-300  w-fit  `}
+      style={{ position: "absolute", top: `${y}px`, left: `${x}px` }}
+    >
       <button
         className="text-md p-3 h-12 max-h-12 bg-blue-950 cursor-pointer border-l border-r-2 border-r-slate-900 border-blue-950 rounded-l-lg hover:bg-blue-950/80"
         onClick={() => {
