@@ -1,18 +1,21 @@
 import { useState } from "react";
-import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
+import { DialogueBox } from "./DialogueBox";
+import { useExitAnimationState } from "../store/exitAnimation";
 interface SelectionPositionProps {
   x: number;
   y: number;
+  selectionValue: string;
 }
-export function SendToAiMenu({ x, y }: SelectionPositionProps) {
+
+export function SendToAiMenu({ x, y, selectionValue }: SelectionPositionProps) {
   //   const [inputBoxOpen, setInputBoxOpen] = useState<boolean>(false);
   console.log(x, y);
-  const [exitAnimation, setExitAnimation] = useState<boolean>(false);
+  const { exitAnimation, setExitAnimation } = useExitAnimationState();
   const [isDialogueBoxOpen, setIsDialogueBoxOpen] = useState<boolean>(false);
   const [isCustonPromptOpen, setIsCustomPromptOpen] = useState<boolean>(false);
+  const [customPrompt, setCustomPrompt] = useState<string>("");
 
-  const tones = ["casual", "formal", "funny", "friendly"];
   return isCustonPromptOpen ? (
     <div
       className=" bg-slate-800 w-fit rounded-lg p-2  "
@@ -21,6 +24,10 @@ export function SendToAiMenu({ x, y }: SelectionPositionProps) {
       <textarea
         className="border-0 resize-none field-sizing-content text-lg font-light placeholder:text-slate-600 rounded-lg p-3 w-80 outline-none text-slate-300 tracking-wide "
         placeholder="eg: make this text more persuasive"
+        value={customPrompt}
+        onChange={(event) => {
+          setCustomPrompt(event.target.value);
+        }}
       ></textarea>
       <div className="flex justify-between py-1 px-1">
         <button
@@ -68,30 +75,7 @@ export function SendToAiMenu({ x, y }: SelectionPositionProps) {
           tone
         </button>
 
-        {isDialogueBoxOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: exitAnimation ? 0 : 1 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="bg-purple-900 rounded-lg "
-          >
-            {tones.map((tone, index) => (
-              <div
-                key={index}
-                className={`text-sm text-slate-400 p-2 hover:bg-purple-800 hover:cursor-pointer   ${
-                  index === 0
-                    ? `rounded-t-lg`
-                    : index === 3
-                    ? `rounded-b-lg`
-                    : ``
-                }      
-                `}
-              >
-                {tone}
-              </div>
-            ))}
-          </motion.div>
-        )}
+        {isDialogueBoxOpen && <DialogueBox />}
       </div>
     </div>
   );

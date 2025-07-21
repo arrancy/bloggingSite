@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SendToAiMenu } from "../components/SendToAiMenu";
 interface SelectionPosition {
   x: number;
@@ -14,7 +14,10 @@ export default function CreateBlog() {
   const [selectionPosition, setSelectionPosition] = useState<SelectionPosition>(
     { x: 0, y: 0 }
   );
-
+  const selectionRef = useRef<string>("");
+  useEffect(() => {
+    selectionRef.current = selection;
+  });
   const inputRef = useRef<HTMLDivElement>(null);
 
   return isChecking ? (
@@ -63,6 +66,7 @@ export default function CreateBlog() {
         <SendToAiMenu
           x={selectionPosition.x}
           y={selectionPosition.y}
+          selectionValue={selectionRef.current}
         ></SendToAiMenu>
       )}
       <div className=" border-2 border-amber-200 text-2xl text-white ">
