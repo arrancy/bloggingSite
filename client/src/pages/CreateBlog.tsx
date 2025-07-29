@@ -2,12 +2,20 @@ import { Navigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
-import { useEffect, useRef, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 import { SendToAiMenu } from "../components/SendToAiMenu";
 interface SelectionPosition {
   x: number;
   y: number;
 }
+interface SelectionContextType {
+  selection: string;
+  setSelectionFunction: ((snippet: string) => void) | null;
+}
+const SelectionContext = createContext<SelectionContextType>({
+  selection: "",
+  setSelectionFunction: null,
+});
 export default function CreateBlog() {
   const { isChecking, isLoggedIn } = useAuthentication();
   const [selection, setSelection] = useState<string>("");
@@ -19,7 +27,9 @@ export default function CreateBlog() {
     selectionRef.current = selection;
   });
   const inputRef = useRef<HTMLDivElement>(null);
-
+  const setSelectionFunction = (snippet: string) => {
+    setSelection(snippet);
+  };
   return isChecking ? (
     <LoaderPage />
   ) : isLoggedIn ? (
@@ -63,11 +73,13 @@ export default function CreateBlog() {
         </div>
       </div>
       {selection && (
-        <SendToAiMenu
-          x={selectionPosition.x}
-          y={selectionPosition.y}
-          selectionValue={selectionRef.current}
-        ></SendToAiMenu>
+        <SelectionContext.Provider value={{ selection, setSelectionFunction }}>
+          <SendToAiMenu
+            x={selectionPosition.x}
+            y={selectionPosition.y}
+            selectionValue={selectionRef.current}
+          ></SendToAiMenu>
+        </SelectionContext.Provider>
       )}
       <div className=" border-2 border-amber-200 text-2xl text-white ">
         {selection}

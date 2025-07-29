@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { motion } from "motion/react";
 import { useExitAnimationState } from "../store/exitAnimation";
-import { ArrowRightIcon, ArrowRightLeft } from "lucide-react";
+import { ArrowRightIcon } from "lucide-react";
 
 // enum Tones {
 //   "casual",
@@ -29,6 +29,21 @@ export function DialogueBox() {
   ]);
   const [isAnElementChecked, setIsAnElementChencked] = useState<boolean>(false);
   const { exitAnimation } = useExitAnimationState();
+  const handleElementChecked = useCallback(
+    (index: number) => {
+      setIsAnElementChencked(true);
+      if (!(checkedElementState[index] === true)) {
+        const newArray = [];
+        for (let i = 0; i <= 3; i++) {
+          newArray.push(false);
+        }
+
+        newArray[index] = true;
+        setCheckedElementState(newArray);
+      }
+    },
+    [checkedElementState]
+  );
 
   return (
     <>
@@ -47,24 +62,14 @@ export function DialogueBox() {
             <input
               type="checkbox"
               checked={checkedElementState[index]}
-              onClick={() => {
-                setIsAnElementChencked(true);
-                if (!(checkedElementState[index] === true)) {
-                  const newArray = [];
-                  for (let i = 0; i <= 3; i++) {
-                    newArray.push(false);
-                  }
-
-                  newArray[index] = true;
-                  setCheckedElementState(newArray);
-                }
-              }}
+              onClick={() => handleElementChecked(index)}
               className="outline-none border-0 rounded-lg m-2 bg-purple-100 checked:bg-purple-900"
             ></input>
             <div
               key={index}
               className={`text-sm text-slate-400 p-2  hover:cursor-pointer  
                 `}
+              onClick={() => handleElementChecked(index)}
             >
               {tone}
             </div>
