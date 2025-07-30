@@ -1,8 +1,10 @@
-import { useCallback, useState } from "react";
+import { useCallback, useContext, useState } from "react";
 import { motion } from "motion/react";
 import { useExitAnimationState } from "../store/exitAnimation";
 import { ArrowRightIcon } from "lucide-react";
-
+import { SelectionContext } from "../utils/SelectionContext";
+import { useMutation } from "@tanstack/react-query";
+import api from "../axios/baseUrl";
 // enum Tones {
 //   "casual",
 //   "formal",
@@ -16,11 +18,6 @@ import { ArrowRightIcon } from "lucide-react";
 export function DialogueBox() {
   const tones = ["casual", "formal", "funny", "friendly"];
 
-  // const [sendingTone, setSendingTone] = useState<Tones | "">("");
-  // const [currentChecked, setCurrentChecked] = useState<CheckedBox>({
-  //   isChecked: false,
-  //   thisOne: "",
-  // });
   const [checkedElementState, setCheckedElementState] = useState<boolean[]>([
     false,
     false,
@@ -44,7 +41,21 @@ export function DialogueBox() {
     },
     [checkedElementState]
   );
-
+  const { selection } = useContext(SelectionContext);
+  const sendToAiMutation = useMutation({
+    mutationKey: ["sendToneToAi"],
+    mutationFn: async () => {
+      const response = await api.post("/blog/ai/refine", {
+        snippet: selection,
+        tone: tones[checkedElementState.indexOf(true)],
+      });
+      return response;
+    },
+    onSuccess: (data) => {
+      console.log(data);
+    },
+  });
+  const { isPending, isSuccess, isError, data } = sendToAiMutation;
   return (
     <>
       <motion.div
@@ -76,7 +87,10 @@ export function DialogueBox() {
           </div>
         ))}
         {isAnElementChecked && (
-          <div className="flex space-x-2 justify-center py-2 hover:bg-purple-800 hover:cursor-pointer group rounded-b-lg transition-all ease-in-out duration-200">
+          <div
+            onClick={() => sendToAiMutation.mutate()}
+            className="flex space-x-2 justify-center py-2 hover:bg-purple-800 hover:cursor-pointer group rounded-b-lg transition-all ease-in-out duration-200"
+          >
             <div className="text-sm  text-slate-100 font-semibold group-hover:scale-110 ">
               send
             </div>

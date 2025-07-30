@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { DialogueBox } from "./DialogueBox";
 import { useExitAnimationState } from "../store/exitAnimation";
+import { SelectionContext } from "../utils/SelectionContext";
 interface SelectionPositionProps {
   x: number;
   y: number;
-  selectionValue: string;
 }
 
-export function SendToAiMenu({ x, y, selectionValue }: SelectionPositionProps) {
+export function SendToAiMenu({ x, y }: SelectionPositionProps) {
   //   const [inputBoxOpen, setInputBoxOpen] = useState<boolean>(false);
+  const { selection } = useContext(SelectionContext);
+  console.log(selection);
   console.log(x, y);
   const { exitAnimation, setExitAnimation } = useExitAnimationState();
   const [isDialogueBoxOpen, setIsDialogueBoxOpen] = useState<boolean>(false);

@@ -2,20 +2,14 @@ import { Navigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
-import { createContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SendToAiMenu } from "../components/SendToAiMenu";
+import { SelectionContext } from "../utils/SelectionContext";
 interface SelectionPosition {
   x: number;
   y: number;
 }
-interface SelectionContextType {
-  selection: string;
-  setSelectionFunction: ((snippet: string) => void) | null;
-}
-const SelectionContext = createContext<SelectionContextType>({
-  selection: "",
-  setSelectionFunction: null,
-});
+
 export default function CreateBlog() {
   const { isChecking, isLoggedIn } = useAuthentication();
   const [selection, setSelection] = useState<string>("");
@@ -23,13 +17,13 @@ export default function CreateBlog() {
     { x: 0, y: 0 }
   );
   const selectionRef = useRef<string>("");
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     selectionRef.current = selection;
   });
   const inputRef = useRef<HTMLDivElement>(null);
-  const setSelectionFunction = (snippet: string) => {
-    setSelection(snippet);
-  };
+
   return isChecking ? (
     <LoaderPage />
   ) : isLoggedIn ? (
@@ -39,8 +33,16 @@ export default function CreateBlog() {
         <div
           ref={inputRef}
           onSelect={() => {
-            const selectionString = window.getSelection()?.toString() ?? "";
-            setSelection(selectionString);
+            const selectionObject = window.getSelection();
+            if (!selectionObject) {
+              return;
+            }
+            const selectionString = selectionObject.toString();
+
+            const { anchorNode, focusNode } = selectionObject;
+            if (anchorNode === focusNode) {
+              setSelection(selectionString);
+            }
           }}
           onMouseUp={(event) => {
             console.log("mouse upped");
@@ -56,12 +58,14 @@ export default function CreateBlog() {
         >
           <div className="w-full  px-4 rounded-lg  pt-4 ">
             <textarea
+              ref={titleRef}
               className="w-full resize-none field-sizing-content py-3 focus:outline-none  text-4xl bg-transparent font-bold  text-purple-200  placeholder-purple-900 tracking-wide   "
               placeholder="enter your title here..."
             ></textarea>
           </div>
           <div className="   px-5 mt-1  rounded-lg  ">
             <textarea
+              ref={descriptionRef}
               className="  resize-none w-full field-sizing-content py-2 text-xl tracking-wide  font-light text-slate-100 placeholder-purple-700/40  focus:outline-none "
               placeholder="enter your blog text here..."
             ></textarea>
@@ -73,11 +77,10 @@ export default function CreateBlog() {
         </div>
       </div>
       {selection && (
-        <SelectionContext.Provider value={{ selection, setSelectionFunction }}>
+        <SelectionContext.Provider value={{ selection }}>
           <SendToAiMenu
             x={selectionPosition.x}
             y={selectionPosition.y}
-            selectionValue={selectionRef.current}
           ></SendToAiMenu>
         </SelectionContext.Provider>
       )}
