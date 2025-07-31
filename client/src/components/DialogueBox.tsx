@@ -9,7 +9,7 @@ import { useWaitingState } from "../store/waitingState";
 import { useTitleAndContentState } from "../store/titleAndDescription";
 import { useTitleOrContentState } from "../store/titleOrContentState";
 import { useErrorState } from "../store/errorState";
-import axios, { Axios } from "axios";
+import axios from "axios";
 // enum Tones {
 //   "casual",
 //   "formal",
@@ -99,7 +99,7 @@ export function DialogueBox() {
     },
   });
 
-  const { isPending, isSuccess, isError } = sendToAiMutation;
+  const { isPending } = sendToAiMutation;
   useEffect(() => {
     setWaiting(isPending);
   }, [isPending, setWaiting]);

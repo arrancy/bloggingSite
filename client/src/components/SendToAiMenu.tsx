@@ -1,8 +1,15 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { DialogueBox } from "./DialogueBox";
 import { useExitAnimationState } from "../store/exitAnimation";
 import { SelectionContext } from "../utils/SelectionContext";
+import { useMutation } from "@tanstack/react-query";
+import api from "../axios/baseUrl";
+import { useWaitingState } from "../store/waitingState";
+import { useTitleAndContentState } from "../store/titleAndDescription";
+import { useTitleOrContentState } from "../store/titleOrContentState";
+import axios from "axios";
+import { useErrorState } from "../store/errorState";
 interface SelectionPositionProps {
   x: number;
   y: number;
@@ -14,10 +21,49 @@ export function SendToAiMenu({ x, y }: SelectionPositionProps) {
   console.log(selection);
   console.log(x, y);
   const { exitAnimation, setExitAnimation } = useExitAnimationState();
+  const { setWaiting } = useWaitingState();
   const [isDialogueBoxOpen, setIsDialogueBoxOpen] = useState<boolean>(false);
   const [isCustonPromptOpen, setIsCustomPromptOpen] = useState<boolean>(false);
   const [customPrompt, setCustomPrompt] = useState<string>("");
-
+  const { title, content, setTitle, setContent } = useTitleAndContentState();
+  const { titleOrContent } = useTitleOrContentState();
+  const { setErrorMessage } = useErrorState();
+  const customPromptMutation = useMutation({
+    mutationFn: async () => {
+      const response = await api.post("/blog/ai/refine", {
+        snippet: selection,
+        instruction: customPrompt,
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      const { text }: { success: boolean; text: string } = data;
+      if (titleOrContent === "content") {
+        const newContent = content.replace(selection, text);
+        setContent(newContent);
+      }
+      if (titleOrContent === "title") {
+        const newTitle = title.replace(selection, text);
+        setTitle(newTitle);
+      }
+    },
+    onError: (error) => {
+      if (axios.isAxiosError(error)) {
+        if (!error.response) {
+          return setErrorMessage(error.message);
+        }
+        const { data } = error.response;
+        const { msg }: { msg: string } = data;
+        return setErrorMessage(msg);
+      } else {
+        return setErrorMessage(error.message);
+      }
+    },
+  });
+  const { isPending } = customPromptMutation;
+  useEffect(() => {
+    setWaiting(isPending);
+  }, [isPending, setWaiting]);
   return isCustonPromptOpen ? (
     <div
       className=" bg-slate-800 w-fit rounded-lg p-2  "
@@ -40,7 +86,15 @@ export function SendToAiMenu({ x, y }: SelectionPositionProps) {
         >
           cancel
         </button>
-        <button className="bg-slate-100 p-2 rounded-2xl hover:cursor-pointer hover:bg-slate-200 group">
+        <button
+          className="bg-slate-100 p-2 rounded-2xl hover:cursor-pointer hover:bg-slate-200 group"
+          onClick={() => {
+            if (!customPrompt) {
+              return;
+            }
+            customPromptMutation.mutate();
+          }}
+        >
           <ArrowUpRight className="text-slate-800 h-5 w-5 group-hover:rotate-45 group-hover:scale-110 transition-all ease-in-out duration-100"></ArrowUpRight>
         </button>
       </div>
