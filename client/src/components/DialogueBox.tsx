@@ -9,6 +9,7 @@ import { useWaitingState } from "../store/waitingState";
 import { useTitleAndContentState } from "../store/titleAndDescription";
 import { useTitleOrContentState } from "../store/titleOrContentState";
 import { useErrorState } from "../store/errorState";
+import axios, { Axios } from "axios";
 // enum Tones {
 //   "casual",
 //   "formal",
@@ -62,7 +63,7 @@ export function DialogueBox() {
       });
       return response.data;
     },
-    onSuccess: (data: { success: boolean; text: string }) => {
+    onSuccess: (data) => {
       const { text } = data;
       if (!titleOrContent) {
         return;
@@ -78,8 +79,23 @@ export function DialogueBox() {
         setWaiting(false);
       }
     },
+
     onError: (error) => {
-      setErrorMessage(error.message);
+      if (axios.isAxiosError(error)) {
+        if (!error.response) {
+          setErrorMessage(error.message);
+          return;
+        }
+        console.log("reached here");
+
+        const { data } = error.response;
+        const { msg }: { msg: string } = data;
+        console.log(msg);
+        setErrorMessage(msg);
+      } else {
+        setErrorMessage(error.message);
+        return;
+      }
     },
   });
 
