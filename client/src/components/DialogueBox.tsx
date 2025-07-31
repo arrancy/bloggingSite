@@ -1,10 +1,14 @@
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useExitAnimationState } from "../store/exitAnimation";
 import { ArrowRightIcon } from "lucide-react";
 import { SelectionContext } from "../utils/SelectionContext";
 import { useMutation } from "@tanstack/react-query";
 import api from "../axios/baseUrl";
+import { useWaitingState } from "../store/waitingState";
+import { useTitleAndContentState } from "../store/titleAndDescription";
+import { useTitleOrContentState } from "../store/titleOrContentState";
+import { useErrorState } from "../store/errorState";
 // enum Tones {
 //   "casual",
 //   "formal",
@@ -17,7 +21,7 @@ import api from "../axios/baseUrl";
 // }
 export function DialogueBox() {
   const tones = ["casual", "formal", "funny", "friendly"];
-
+  const { setWaiting } = useWaitingState();
   const [checkedElementState, setCheckedElementState] = useState<boolean[]>([
     false,
     false,
@@ -26,6 +30,9 @@ export function DialogueBox() {
   ]);
   const [isAnElementChecked, setIsAnElementChencked] = useState<boolean>(false);
   const { exitAnimation } = useExitAnimationState();
+  const { title, content, setTitle, setContent } = useTitleAndContentState();
+  const { titleOrContent } = useTitleOrContentState();
+  const { setErrorMessage } = useErrorState();
   const handleElementChecked = useCallback(
     (index: number) => {
       setIsAnElementChencked(true);
@@ -45,17 +52,41 @@ export function DialogueBox() {
   const sendToAiMutation = useMutation({
     mutationKey: ["sendToneToAi"],
     mutationFn: async () => {
+      console.log({
+        snippet: selection,
+        tone: tones[checkedElementState.indexOf(true)],
+      });
       const response = await api.post("/blog/ai/refine", {
         snippet: selection,
         tone: tones[checkedElementState.indexOf(true)],
       });
-      return response;
+      return response.data;
     },
-    onSuccess: (data) => {
-      console.log(data);
+    onSuccess: (data: { success: boolean; text: string }) => {
+      const { text } = data;
+      if (!titleOrContent) {
+        return;
+      }
+      if (titleOrContent === "title") {
+        const newTitle = title.replace(selection, text);
+        setTitle(newTitle);
+        setWaiting(false);
+      }
+      if (titleOrContent === "content") {
+        const newContent = content.replace(selection, text);
+        setContent(newContent);
+        setWaiting(false);
+      }
+    },
+    onError: (error) => {
+      setErrorMessage(error.message);
     },
   });
-  const { isPending, isSuccess, isError, data } = sendToAiMutation;
+
+  const { isPending, isSuccess, isError } = sendToAiMutation;
+  useEffect(() => {
+    setWaiting(isPending);
+  }, [isPending, setWaiting]);
   return (
     <>
       <motion.div
