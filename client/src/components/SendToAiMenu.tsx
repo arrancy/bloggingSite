@@ -50,13 +50,24 @@ export function SendToAiMenu({ x, y }: SelectionPositionProps) {
     onError: (error) => {
       if (axios.isAxiosError(error)) {
         if (!error.response) {
-          return setErrorMessage(error.message);
+          setErrorMessage(error.message);
+          setTimeout(() => {
+            setErrorMessage("");
+          }, 3000);
+          return;
         }
         const { data } = error.response;
         const { msg }: { msg: string } = data;
-        return setErrorMessage(msg);
+        setErrorMessage(msg);
+        setTimeout(() => {
+          setErrorMessage("");
+        }, 3000);
       } else {
-        return setErrorMessage(error.message);
+        setErrorMessage(error.message);
+        setTimeout(() => {
+          setErrorMessage("");
+        }, 3000);
+        return;
       }
     },
   });

@@ -10,7 +10,7 @@ import { useWaitingState } from "../store/waitingState";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { useTitleOrContentState } from "../store/titleOrContentState";
 import { useErrorState } from "../store/errorState";
-import { ErrorMessage } from "../components/ErrorMessage";
+import { ErrorPopup } from "../components/ErrorPopup";
 interface SelectionPosition {
   x: number;
   y: number;
@@ -136,10 +136,17 @@ export default function CreateBlog() {
           ></SendToAiMenu>
         </SelectionContext.Provider>
       )}
+      {errorMessage && (
+        <div className=" absolute top-0 bottom-0 left-0 min-h-dvh w-full bg-black/50 z-10"></div>
+      )}
       <div className=" border-2 border-amber-200 text-2xl text-white ">
         {selection}
       </div>
-      {errorMessage && <ErrorMessage label={errorMessage}></ErrorMessage>}
+      {errorMessage && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-[50%] -translate-y-[50%] z-20">
+          <ErrorPopup label={errorMessage}></ErrorPopup>
+        </div>
+      )}
     </div>
   ) : (
     <Navigate to="/signin"></Navigate>

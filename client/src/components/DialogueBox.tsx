@@ -84,6 +84,9 @@ export function DialogueBox() {
       if (axios.isAxiosError(error)) {
         if (!error.response) {
           setErrorMessage(error.message);
+          setTimeout(() => {
+            setErrorMessage("");
+          }, 3000);
           return;
         }
         console.log("reached here");
@@ -92,8 +95,16 @@ export function DialogueBox() {
         const { msg }: { msg: string } = data;
         console.log(msg);
         setErrorMessage(msg);
+
+        setTimeout(() => {
+          setErrorMessage("");
+        }, 3000);
       } else {
         setErrorMessage(error.message);
+
+        setTimeout(() => {
+          setErrorMessage("");
+        }, 3000);
         return;
       }
     },
