@@ -78,7 +78,7 @@ export function SendToAiMenu({ x, y }: SelectionPositionProps) {
   return isCustonPromptOpen ? (
     <div
       className=" bg-slate-800 w-fit rounded-lg p-2  "
-      style={{ position: "absolute", top: `${y}px`, left: `${x}px` }}
+      style={{ position: "fixed", top: `${y}px`, left: `${x}px` }}
     >
       <textarea
         className="border-0 resize-none field-sizing-content text-lg font-light placeholder:text-slate-600 rounded-lg p-3 w-80 outline-none text-slate-300 tracking-wide "
@@ -113,7 +113,7 @@ export function SendToAiMenu({ x, y }: SelectionPositionProps) {
   ) : (
     <div
       className={`flex text-slate-300  w-fit  `}
-      style={{ position: "absolute", top: `${y}px`, left: `${x}px` }}
+      style={{ position: "fixed", top: `${y}px`, left: `${x}px` }}
     >
       <button
         className="text-md p-3 h-12 max-h-12 bg-blue-950 cursor-pointer border-l border-r-2 border-r-slate-900 border-blue-950 rounded-l-lg hover:bg-blue-950/80"

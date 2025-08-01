@@ -52,7 +52,7 @@ export default function CreateBlog() {
   return isChecking ? (
     <LoaderPage />
   ) : isLoggedIn ? (
-    <div className="min-h-screen w-screen bg-gradient-to-br from-slate-950 to-fuchsia-950 px-[15%] pt-8 pb-16">
+    <div className="min-h-screen max-w-screen bg-gradient-to-br from-slate-950 to-fuchsia-950 px-[15%] pt-8 pb-16">
       <Navbar></Navbar>
       <div>
         <div
@@ -137,13 +137,13 @@ export default function CreateBlog() {
         </SelectionContext.Provider>
       )}
       {errorMessage && (
-        <div className=" absolute top-0 bottom-0 left-0 min-h-dvh w-full bg-black/50 z-10"></div>
+        <div className=" fixed top-0  left-0 h-screen w-screen   bg-black/50 z-10"></div>
       )}
       <div className=" border-2 border-amber-200 text-2xl text-white ">
         {selection}
       </div>
       {errorMessage && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-[50%] -translate-y-[50%] z-20">
+        <div className="absolute bottom-[50vh] left-[50%] -translate-x-[50%] translate-y-[50vh] z-20">
           <ErrorPopup label={errorMessage}></ErrorPopup>
         </div>
       )}
