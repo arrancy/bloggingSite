@@ -30,6 +30,8 @@ export default function CreateBlog() {
   const inputRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const titleTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [titleDivHeight, setTitleDivHeight] = useState<number>(0);
   const [contentDivHeight, setContentHeight] = useState<number>(0);
   useEffect(() => {
@@ -88,7 +90,33 @@ export default function CreateBlog() {
           }}
           className=" w-full mx-auto mt-24  shadow-md rounded-2xl  bg-fuchsia-950/40 backdrop-blur-xl border-2 border-purple-950 focus-within:shadow-sky-500 transition-shadow ease-in-out duration-200"
         >
-          <div className="w-full  px-4 rounded-lg  pt-4 " ref={titleRef}>
+          <div
+            className="w-full  px-5 rounded-lg  pt-4 "
+            ref={titleRef}
+            onKeyDown={(event) => {
+              console.log("here");
+              if (document.activeElement === titleTextareaRef.current) {
+                console.log("here");
+                if (event.key === "Backspace") {
+                  if (title.length === 255) {
+                    console.log("here");
+                    const newTitle = title.slice(0, 254);
+                    event.preventDefault();
+                    setTitle(newTitle);
+                  }
+                }
+              }
+              if (document.activeElement === contentTextareaRef.current) {
+                if (event.key === "Backspace") {
+                  if (content.length >= 2500) {
+                    const newContent = content.slice(0, 2499);
+                    setContent(newContent);
+                    event.preventDefault();
+                  }
+                }
+              }
+            }}
+          >
             {isWaiting && titleOrContent === "title" ? (
               <div
                 style={{ height: titleDivHeight }}
@@ -97,12 +125,30 @@ export default function CreateBlog() {
                 <LoadingSpinner></LoadingSpinner>
               </div>
             ) : (
-              <textarea
-                className="w-full resize-none field-sizing-content py-3 focus:outline-none  text-4xl bg-transparent font-bold  text-purple-200  placeholder-purple-900 tracking-wide   "
-                placeholder="enter your title here..."
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-              ></textarea>
+              <>
+                <textarea
+                  className="w-full resize-none field-sizing-content py-3 focus:outline-none  text-4xl bg-transparent font-bold  text-purple-200  placeholder-purple-900 tracking-wide   "
+                  placeholder="enter your title here..."
+                  value={title}
+                  ref={titleTextareaRef}
+                  onChange={(event) => {
+                    if (event.target.value.length <= 255) {
+                      setTitle(event.target.value);
+                    }
+                    if (event.target.value.length > 255) {
+                      const fixedTitle = event.target.value.slice(0, 255);
+                      setTitle(fixedTitle);
+                    }
+                  }}
+                ></textarea>
+                <div
+                  className={` border-2 rounded-lg p-2 font-semibold inline-block border-purple-500 ${
+                    title.length >= 255 ? `text-red-600` : `text-purple-300`
+                  }`}
+                >
+                  {title.length >= 255 ? "255/255" : title.length + "/" + 255}
+                </div>
+              </>
             )}
           </div>
           <div className="   px-5 mt-1  rounded-lg  " ref={contentRef}>
@@ -117,15 +163,33 @@ export default function CreateBlog() {
               <textarea
                 className="  resize-none w-full field-sizing-content py-2 text-xl tracking-wide  font-light text-slate-100 placeholder-purple-700/40  focus:outline-none "
                 placeholder="enter your blog text here..."
+                ref={contentTextareaRef}
                 value={content}
-                onChange={(event) => setContent(event.target.value)}
+                onChange={(event) => {
+                  if (event.target.value.length <= 2500) {
+                    setContent(event.target.value);
+                  }
+                  if (event.target.value.length > 2500) {
+                    const fixedContent = event.target.value.slice(0, 2500);
+                    setContent(fixedContent);
+                  }
+                }}
               ></textarea>
             )}
           </div>
 
-          <button className="bg-fuchsia-900 font-semibold w-18 ml-[92%] mb-3.5 h-12 border-2 border-fuchsia-300 text-lg px-3 rounded-xl mt-1 cursor-pointer hover:bg-fuchsia-900/70 hover:border-fuchsia-400/20 text-fuchsia-300 ">
-            done
-          </button>
+          <div className="flex justify-between items-center px-5">
+            <div
+              className={`font-semibold text-md border-2 border-purple-500 mb-1.5 inline-block p-1 rounded-lg ${
+                content.length >= 2500 ? `text-red-600` : `text-purple-300`
+              }`}
+            >
+              {(content.length >= 2500 ? 2500 : content.length) + "/" + 2500}
+            </div>
+            <button className="bg-fuchsia-900 font-semibold w-18  mb-3.5 h-12 border-2 border-fuchsia-300 text-lg px-3 rounded-xl mt-1 cursor-pointer hover:bg-fuchsia-900/70 hover:border-fuchsia-400/20 text-fuchsia-300 ">
+              done
+            </button>
+          </div>
         </div>
       </div>
       {selection && (

@@ -5,10 +5,11 @@ export function DashboardHeading() {
   const letters = heading.split("");
 
   return (
-    <h2 className="text-8xl text-center  text-sky-200 font-bold">
+    <h2 className="text-8xl text-center   font-bold">
       {letters.map((letter, index) => {
         return (
           <motion.span
+            className="bg-gradient-to-br from-fuchsia-300 to-purple-700 bg-clip-text text-transparent "
             key={index}
             initial={{ filter: "blur(10px)", opacity: 0, y: 12 }}
             animate={{ filter: "blur(0px)", opacity: 1, y: 0 }}

@@ -3,7 +3,9 @@ import { BookCheck } from "lucide-react";
 import { Sparkles } from "lucide-react";
 import { motion } from "motion/react";
 import { GridItem } from "./GridItem";
+import { useNavigate } from "react-router-dom";
 export function Hero() {
+  const navigate = useNavigate();
   return (
     <>
       <div className=" mt-16 ">
@@ -52,6 +54,9 @@ export function Hero() {
               filter: "blur(0px)",
             }}
             transition={{ duration: 0.6, delay: 1 }}
+            onClick={() => {
+              navigate("/createblog");
+            }}
             className=" mt-8 shadow-slate-400 text-slate-800 shadow-md text-2xl font-semibold bg-slate-200 px-4 pb-3 pt-1  cursor-pointer rounded-3xl hover:shadow-lg hover:shadow-slate-400 transition-all ease-in-out duration-200"
           >
             get started {">"}
