@@ -270,7 +270,6 @@ export default function CreateBlog() {
       {successMessage && (
         <>
           <div className="fixed top-0 left-0 h-screen w-screen z-10 bg-black/50"></div>
-          <SuccessfulPopup label={successMessage}></SuccessfulPopup>
         </>
       )}
       <div className=" border-2 border-amber-200 text-2xl text-white ">
@@ -280,6 +279,9 @@ export default function CreateBlog() {
         <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           <ErrorPopup label={errorMessage}></ErrorPopup>
         </div>
+      )}
+      {successMessage && (
+        <SuccessfulPopup label={successMessage}></SuccessfulPopup>
       )}
     </div>
   ) : (
