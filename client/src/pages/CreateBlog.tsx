@@ -1,8 +1,8 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SendToAiMenu } from "../components/SendToAiMenu";
 import { SelectionContext } from "../utils/SelectionContext";
 import { useTitleAndContentState } from "../store/titleAndDescription";
@@ -11,6 +11,11 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import { useTitleOrContentState } from "../store/titleOrContentState";
 import { useErrorState } from "../store/errorState";
 import { ErrorPopup } from "../components/ErrorPopup";
+import { useMutation } from "@tanstack/react-query";
+import api from "../axios/baseUrl";
+import { useSuccessState } from "../store/successState";
+import { SuccessfulPopup } from "../components/SuccessfulPopup";
+import axios from "axios";
 interface SelectionPosition {
   x: number;
   y: number;
@@ -26,7 +31,8 @@ export default function CreateBlog() {
   const { isWaiting } = useWaitingState();
   const { title, content, setTitle, setContent } = useTitleAndContentState();
   const { titleOrContent, setTitleOrContent } = useTitleOrContentState();
-  const { errorMessage } = useErrorState();
+  const { errorMessage, setErrorMessage } = useErrorState();
+  const { successMessage, setSuccessMessage } = useSuccessState();
   const inputRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -34,6 +40,7 @@ export default function CreateBlog() {
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [titleDivHeight, setTitleDivHeight] = useState<number>(0);
   const [contentDivHeight, setContentHeight] = useState<number>(0);
+  const navigate = useNavigate();
   useEffect(() => {
     if (titleOrContent === "content") {
       if (contentRef.current) {
@@ -51,6 +58,48 @@ export default function CreateBlog() {
   useEffect(() => {
     selectionRef.current = selection;
   });
+  const handleNoTitleOrContent = useCallback(() => {
+    if (!(title && content)) {
+      setErrorMessage("please fill up the required fields");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return false;
+    } else {
+      return true;
+    }
+  }, [title, content, setErrorMessage]);
+  const publishMutation = useMutation({
+    mutationFn: async () => {
+      const response = await api.post("/blog", {
+        title,
+        content,
+        isDraft: false,
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      setSuccessMessage("published successFully");
+      setTimeout(() => {
+        setSuccessMessage("");
+        setTitle("");
+        setContent("");
+        navigate("/dashboard");
+      }, 3000);
+    },
+    onError: (error) => {
+      if (axios.isAxiosError(error)) {
+        if (!error.response) {
+          setErrorMessage(error.message);
+          setTimeout(() => setErrorMessage(""), 3000);
+          return;
+        }
+        const { data } = error.response;
+        const { msg }: { msg: string } = data;
+        setErrorMessage(msg);
+        setTimeout(() => setErrorMessage(""), 3000);
+      }
+    },
+  });
+  const { isPending } = publishMutation;
   return isChecking ? (
     <LoaderPage />
   ) : isLoggedIn ? (
@@ -186,9 +235,24 @@ export default function CreateBlog() {
             >
               {(content.length >= 2500 ? 2500 : content.length) + "/" + 2500}
             </div>
-            <button className="bg-fuchsia-900 font-semibold w-18  mb-3.5 h-12 border-2 border-fuchsia-300 text-lg px-3 rounded-xl mt-1 cursor-pointer hover:bg-fuchsia-900/70 hover:border-fuchsia-400/20 text-fuchsia-300 ">
-              done
-            </button>
+            <div className="flex items-center space-x-3 px-2">
+              <button
+                onClick={() => {
+                  const result = handleNoTitleOrContent();
+                  if (!result) {
+                    return;
+                  } else if (result === true) {
+                    publishMutation.mutate();
+                  }
+                }}
+                className="bg-gradient-to-l from-violet-500 to-fuchsia-300 font-semibold mb-3.5  p-2 text-lg  rounded-xl mt-1 cursor-pointer hover:bg-gradient-to-l hover:from-violet-900 hover:to-fuchsia-700 hover:text-fuchsia-200 hover:shadow-lg shadow-md shadow-pink-300 hover:shadow-pink-200  text-fuchsia-900 transition-all ease-in-out duration-700"
+              >
+                {isPending ? <LoadingSpinner></LoadingSpinner> : "Publish"}
+              </button>
+              <button className="bg-gradient-to-br from-purple-800 to-fuchsia-800  mb-3 hover:bg-gradient-to-l hover:from-violet-300 cursor-pointer hover:to-fuchsia-300 text-lg font-semibold text-purple-200 hover:text-fuchsia-950 p-2 rounded-lg transition-all ease-in-out duration-700">
+                Save As Draft
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -203,11 +267,17 @@ export default function CreateBlog() {
       {errorMessage && (
         <div className=" fixed top-0  left-0 h-screen w-screen   bg-black/50 z-10"></div>
       )}
+      {successMessage && (
+        <>
+          <div className="fixed top-0 left-0 h-screen w-screen z-10 bg-black/50"></div>
+          <SuccessfulPopup label={successMessage}></SuccessfulPopup>
+        </>
+      )}
       <div className=" border-2 border-amber-200 text-2xl text-white ">
         {selection}
       </div>
       {errorMessage && (
-        <div className="absolute bottom-[50vh] left-[50%] -translate-x-[50%] translate-y-[50vh] z-20">
+        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           <ErrorPopup label={errorMessage}></ErrorPopup>
         </div>
       )}
