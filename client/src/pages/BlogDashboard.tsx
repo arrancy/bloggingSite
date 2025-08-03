@@ -5,6 +5,7 @@ import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
 import { Navigate } from "react-router-dom";
 import { BlogButton } from "../components/BlogButton";
+import { Navbar } from "../components/Navbar";
 // import useAuthentication from "../utils/amIAuthenticated";
 // import { LoaderPage } from "./LoaderPage";
 interface BlogsResponseObject {
@@ -33,7 +34,10 @@ export default function BlogDashboard() {
       an error occured : {" " + error.message}
     </div>
   ) : (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 to-purple-950 pt-7 px-36">
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 to-purple-950 pt-7 px-[15%] ">
+      <div className="mt-4">
+        <Navbar></Navbar>
+      </div>
       <DashboardHeading></DashboardHeading>
       <>
         {data.blogs.map((blog: BlogsResponseObject, index: number) => {

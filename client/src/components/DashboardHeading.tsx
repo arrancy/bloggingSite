@@ -5,7 +5,7 @@ export function DashboardHeading() {
   const letters = heading.split("");
 
   return (
-    <h2 className="text-8xl text-center   font-bold">
+    <h2 className="text-8xl text-center mt-12 mb-16  font-bold">
       {letters.map((letter, index) => {
         return (
           <motion.span

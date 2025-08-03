@@ -29,7 +29,7 @@ export function BlogButton({
           },
           opacity: { ease: "easeIn", duration: 0.2, delay: animationDelay },
         }}
-        className="text-left bg-inherit mt-16 w-[70%] mx-auto"
+        className="text-left bg-inherit mt-16 w-[80%] mx-auto p-2 rounded-lg  hover:bg-violet-900/30"
       >
         <div className="flex justify-between w-[97%]">
           <div className="flex space-x-3  w-fit  drop-shadow-2xl">

@@ -1,10 +1,19 @@
+import { useNavigate } from "react-router-dom";
+
 interface NavElementProps {
   label: string;
+  redirect: string;
 }
 
-export function NavElement({ label }: NavElementProps) {
+export function NavElement({ label, redirect }: NavElementProps) {
+  const navigate = useNavigate();
   return (
-    <div className="rounded-lg sm:px-2 px-2 hover:text-slate-200 hover:bg-purple-950 cursor-pointer">
+    <div
+      className="rounded-lg sm:px-2 px-2 hover:text-slate-200 hover:bg-purple-950 cursor-pointer"
+      onClick={() => {
+        navigate("/" + redirect);
+      }}
+    >
       {label}
     </div>
   );

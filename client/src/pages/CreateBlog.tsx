@@ -40,6 +40,7 @@ export default function CreateBlog() {
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [titleDivHeight, setTitleDivHeight] = useState<number>(0);
   const [contentDivHeight, setContentHeight] = useState<number>(0);
+  // const [isDraft, setisDraft] = useState<boolean | null>(null);
   const navigate = useNavigate();
   useEffect(() => {
     if (titleOrContent === "content") {
@@ -67,17 +68,19 @@ export default function CreateBlog() {
       return true;
     }
   }, [title, content, setErrorMessage]);
+
   const publishMutation = useMutation({
-    mutationFn: async () => {
+    mutationKey: ["publish-mutation"],
+    mutationFn: async (isDraft: boolean) => {
       const response = await api.post("/blog", {
         title,
         content,
-        isDraft: false,
+        isDraft,
       });
       return response.data;
     },
-    onSuccess: () => {
-      setSuccessMessage("published successFully");
+    onSuccess: (_, isDraft) => {
+      setSuccessMessage(isDraft ? "saved as  draft" : "published successfully");
       setTimeout(() => {
         setSuccessMessage("");
         setTitle("");
@@ -99,7 +102,18 @@ export default function CreateBlog() {
       }
     },
   });
-  const { isPending } = publishMutation;
+  const { isPending, variables } = publishMutation;
+  const handlePublishOrDraft = useCallback(
+    (isDraftValue: boolean) => {
+      const result = handleNoTitleOrContent();
+      if (result) {
+        publishMutation.mutate(isDraftValue);
+      } else {
+        return;
+      }
+    },
+    [publishMutation, handleNoTitleOrContent]
+  );
   return isChecking ? (
     <LoaderPage />
   ) : isLoggedIn ? (
@@ -237,20 +251,24 @@ export default function CreateBlog() {
             </div>
             <div className="flex items-center space-x-3 px-2">
               <button
-                onClick={() => {
-                  const result = handleNoTitleOrContent();
-                  if (!result) {
-                    return;
-                  } else if (result === true) {
-                    publishMutation.mutate();
-                  }
-                }}
+                onClick={() => handlePublishOrDraft(false)}
                 className="bg-gradient-to-l from-violet-500 to-fuchsia-300 font-semibold mb-3.5  p-2 text-lg  rounded-xl mt-1 cursor-pointer hover:bg-gradient-to-l hover:from-violet-900 hover:to-fuchsia-700 hover:text-fuchsia-200 hover:shadow-lg shadow-md shadow-pink-300 hover:shadow-pink-200  text-fuchsia-900 transition-all ease-in-out duration-700"
               >
-                {isPending ? <LoadingSpinner></LoadingSpinner> : "Publish"}
+                {isPending && !variables ? (
+                  <LoadingSpinner></LoadingSpinner>
+                ) : (
+                  "Publish"
+                )}
               </button>
-              <button className="bg-gradient-to-br from-purple-800 to-fuchsia-800  mb-3 hover:bg-gradient-to-l hover:from-violet-300 cursor-pointer hover:to-fuchsia-300 text-lg font-semibold text-purple-200 hover:text-fuchsia-950 p-2 rounded-lg transition-all ease-in-out duration-700">
-                Save As Draft
+              <button
+                onClick={() => handlePublishOrDraft(true)}
+                className="bg-gradient-to-br from-purple-800 to-fuchsia-800  mb-3 hover:bg-gradient-to-l hover:from-violet-300 cursor-pointer hover:to-fuchsia-300 text-lg font-semibold text-purple-200 hover:text-fuchsia-950 p-2 rounded-lg transition-all ease-in-out duration-700"
+              >
+                {isPending && variables ? (
+                  <LoadingSpinner></LoadingSpinner>
+                ) : (
+                  "Save As Draft"
+                )}
               </button>
             </div>
           </div>
