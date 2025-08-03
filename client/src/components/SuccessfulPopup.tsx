@@ -8,7 +8,8 @@ export function SuccessfulPopup({ label }: { label: string }) {
           <motion.span
             initial={{ clipPath: "inset(0 100% 0 0)" }}
             animate={{ clipPath: "inset(0 0 0 0)" }}
-            transition={{ duration: 1, ease: "easeInOut", times: [0, 0.2, 1] }}
+            transition={{ duration: 1, ease: "easeInOut" }}
+            className="inline-block"
           >
             <Check className="text-green-500 text-xl"></Check>
           </motion.span>
