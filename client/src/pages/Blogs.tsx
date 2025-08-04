@@ -3,6 +3,12 @@ import { BlogButton } from "../components/BlogButton";
 import { Navbar } from "../components/Navbar";
 import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
+import { useQuery } from "@tanstack/react-query";
+import api from "../axios/baseUrl";
+import { useErrorState } from "../store/errorState";
+import { useCallback, useEffect } from "react";
+import axios from "axios";
+import { ErrorPopup } from "../components/ErrorPopup";
 // import { useQuery } from "@tanstack/react-query";
 // import { nav } from "motion/react-client";
 
@@ -10,48 +16,83 @@ export default function Blogs() {
   const { isChecking, isLoggedIn } = useAuthentication();
   // const {isPending, isSuccess, isError, data} = useQuery({queryKey : ["getBlogs"], queryFn : async ()=>{
   // }})
-  return isChecking ? (
+  const { errorMessage, setErrorMessage } = useErrorState();
+  const { isPending, isError, isSuccess, data, error } = useQuery({
+    queryKey: ["get-all-blogs"],
+    queryFn: async () => {
+      const response = await api.get("/blog/allBlogs");
+      return response.data;
+    },
+    enabled: isLoggedIn,
+  });
+  const handleError = useCallback(
+    (message: string) => {
+      setErrorMessage(message);
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    },
+    [setErrorMessage]
+  );
+  useEffect(() => {
+    if (isError) {
+      if (axios.isAxiosError(error)) {
+        if (!error.response) {
+          handleError(error.message);
+          return;
+        }
+        const { data } = error.response;
+        const { msg }: { msg: string } = data;
+        handleError(msg);
+        return;
+      } else {
+        handleError(error.message);
+        return;
+      }
+    }
+  }, [handleError, error, isError]);
+  return isChecking || isPending ? (
     <LoaderPage />
-  ) : isLoggedIn ? (
+  ) : isLoggedIn && isSuccess ? (
     <>
       <div className="min-h-screen w-full text-center bg-gradient-to-br from-slate-950 to-purple-950 pb-10 pt-4 px-[15%]">
         <Navbar></Navbar>
         <div className="text-slate-200 text-8xl font-bold ">Blogs.</div>
         <div className="   mx-auto">
-          <BlogButton
-            heading={
-              "hello blog this is here dwnfojdsjbf dwnfojdsjbf dwnfojdsjbf dwnfojdsjbf"
-            }
-            animationDelay={0.5}
-            isDraft={true}
-          ></BlogButton>
-          <BlogButton
-            heading={
-              "hello blog this is here dwnfojdsjbf dwnfojdsjbf dwnfojdsjbf dwnfojdsjbf"
-            }
-            isDraft={false}
-            animationDelay={0.9}
-          ></BlogButton>
-          <BlogButton
-            heading={
-              "hello blog this is here dwnfojdsjbf dwnfojdsjbf dwnfojdsjbf dwnfojdsjbf"
-            }
-            animationDelay={1.3}
-            isDraft={false}
-          ></BlogButton>
-          <BlogButton
-            heading={
-              "hello blog this is here dwnfojdsjbf dwnfojdsjbf dwnfojdsjbf dwnfojdsjbf"
-            }
-            animationDelay={1.7}
-            isDraft={true}
-          ></BlogButton>
+          {data.allBlogs.map(
+            (
+              blog: {
+                title: string;
+                content: string;
+                id: number;
+                isDraft: boolean;
+              },
+              index: number
+            ) => (
+              <BlogButton
+                heading={blog.title}
+                id={blog.id}
+                animationDelay={0.8 + 0.4 * index}
+                isDraft={blog.isDraft}
+              ></BlogButton>
+            )
+          )}
+        </div>
+      </div>
+    </>
+  ) : isLoggedIn && isError ? (
+    <LoaderPage></LoaderPage>
+  ) : isLoggedIn && isError && errorMessage ? (
+    <>
+      <div className="min-h-screen w-full  bg-gradient-to-br from-slate-950 to-purple-95">
+        <div className="fixed top-0 left-0 h-screen w-screen z-10 bg-black/50"></div>
+        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+          <ErrorPopup label={errorMessage}></ErrorPopup>
         </div>
       </div>
     </>
   ) : !isChecking && !isLoggedIn ? (
     <Navigate to="/signin"></Navigate>
   ) : (
-    <></>
+    <LoaderPage></LoaderPage>
   );
 }

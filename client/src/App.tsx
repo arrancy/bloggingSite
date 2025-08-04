@@ -9,7 +9,7 @@ const Signin = lazy(() => import("./pages/Signin"));
 const CreateBlog = lazy(() => import("./pages/CreateBlog"));
 const Blogs = lazy(() => import("./pages/Blogs"));
 const BlogDashboard = lazy(() => import("./pages/BlogDashboard"));
-
+const BlogPage = lazy(() => import("./pages/BlogPage"));
 function App() {
   const queryClient = new QueryClient();
   return (
@@ -30,6 +30,7 @@ function App() {
                 path="/dashboard"
                 element={<BlogDashboard></BlogDashboard>}
               ></Route>
+              <Route path="/blog" element={<BlogPage></BlogPage>}></Route>
             </Routes>
           </Suspense>
         </BrowserRouter>

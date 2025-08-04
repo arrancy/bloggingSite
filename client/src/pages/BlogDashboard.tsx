@@ -12,6 +12,7 @@ interface BlogsResponseObject {
   title: string;
   content: string;
   isDraft: boolean;
+  id: number;
 }
 export default function BlogDashboard() {
   const { isChecking, isLoggedIn } = useAuthentication();
@@ -44,6 +45,7 @@ export default function BlogDashboard() {
           console.log(blog.isDraft);
           return (
             <BlogButton
+              id={blog.id}
               key={index}
               heading={blog.title}
               animationDelay={0.8 + 0.4 * index}

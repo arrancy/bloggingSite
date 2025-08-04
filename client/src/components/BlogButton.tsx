@@ -1,17 +1,21 @@
 import { ClipboardPen, NotebookPen } from "lucide-react";
 import { motion } from "motion/react";
+import { useNavigate } from "react-router-dom";
 
 interface BlogButtonProps {
   heading: string;
   animationDelay: number;
+  id: number;
   isDraft: boolean;
 }
 
 export function BlogButton({
   heading,
   isDraft,
+  id,
   animationDelay,
 }: BlogButtonProps) {
+  const navigate = useNavigate();
   return (
     <>
       <motion.div
@@ -29,7 +33,8 @@ export function BlogButton({
           },
           opacity: { ease: "easeIn", duration: 0.2, delay: animationDelay },
         }}
-        className="text-left bg-inherit mt-16 w-[80%] mx-auto p-2 rounded-lg  hover:bg-violet-900/30"
+        onClick={() => navigate("/blog?id=" + id)}
+        className="text-left bg-inherit mt-16 w-[80%] mx-auto p-2 rounded-lg cursor-pointer hover:bg-violet-900/30"
       >
         <div className="flex justify-between w-[97%]">
           <div className="flex space-x-3  w-fit  drop-shadow-2xl">

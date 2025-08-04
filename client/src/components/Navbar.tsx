@@ -13,7 +13,7 @@ export function Navbar() {
           </div>
         </div>
         <div className="flex space-x-1 sm:space-x-4  text-slate-400 font-semibold text-lg ">
-          <NavElement label="home" redirect=""></NavElement>
+          <NavElement label="home" redirect="/"></NavElement>
           <NavElement label="create" redirect="createblog"></NavElement>
           <NavElement label="blogs" redirect="blogs"></NavElement>
           <NavElement label="dashboard" redirect="dashboard"></NavElement>

@@ -96,7 +96,7 @@ blogRouter.get("/allBlogs", async (c) => {
     if (!allBlogs) {
       return c.json({ msg: "blogs not found" }, StatusCodes.notFound);
     }
-    return c.json({ msg: "blogs fetched successfully" }, 200);
+    return c.json({ msg: "blogs fetched successfully", allBlogs }, 200);
   } catch (error) {
     return c.json(
       { msg: "internal server error" },
@@ -123,7 +123,7 @@ blogRouter.get("/", async (c) => {
     if (!blogObject) {
       return c.json({ msg: "blog does not exist" }, StatusCodes.notFound);
     }
-    if (!(userId === blogObject.userId)) {
+    if (!(userId === blogObject.userId || !blogObject.isDraft)) {
       return c.json({ msg: "blog is not yours " }, StatusCodes.conflict);
     }
 
