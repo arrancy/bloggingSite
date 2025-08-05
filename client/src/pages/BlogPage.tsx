@@ -93,7 +93,7 @@ export default function BlogPage() {
   return isChecking ? (
     <LoaderPage></LoaderPage>
   ) : isLoggedIn ? (
-    <div className="min-h-screen w-full bg-gradient-to-br from-fuchsia-950 to-slate-950 px-[20%] pt-12 pb-6">
+    <div className="min-h-screen w-full bg-gradient-to-br from-fuchsia-950 to-slate-950 px-[20%] pt-6 pb-6">
       <div className="">
         <Navbar></Navbar>
       </div>

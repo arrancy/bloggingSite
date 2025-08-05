@@ -50,6 +50,7 @@ export default function BlogDashboard() {
               heading={blog.title}
               animationDelay={0.8 + 0.4 * index}
               isDraft={blog.isDraft}
+              content={blog.content}
             ></BlogButton>
           );
         })}

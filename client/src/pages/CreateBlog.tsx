@@ -1,4 +1,4 @@
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { Navbar } from "../components/Navbar";
 import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
@@ -27,6 +27,7 @@ export default function CreateBlog() {
   const [selectionPosition, setSelectionPosition] = useState<SelectionPosition>(
     { x: 0, y: 0 }
   );
+  const [params] = useSearchParams();
   const selectionRef = useRef<string>("");
   const { isWaiting } = useWaitingState();
   const { title, content, setTitle, setContent } = useTitleAndContentState();
@@ -40,8 +41,32 @@ export default function CreateBlog() {
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [titleDivHeight, setTitleDivHeight] = useState<number>(0);
   const [contentDivHeight, setContentHeight] = useState<number>(0);
+  const [blogId, setBlogId] = useState<number | null>(null);
   // const [isDraft, setisDraft] = useState<boolean | null>(null);
   const navigate = useNavigate();
+  useEffect(() => {
+    const blogIdString = params.get("id");
+
+    if (blogIdString) {
+      console.log(params);
+      if (!blogIdString) {
+        setErrorMessage("please provide blog is properly or do not at all");
+        setTimeout(() => setErrorMessage(""), 3000);
+        navigate("/blogs");
+        return;
+      }
+      const blogId = parseInt(blogIdString);
+      if (isNaN(blogId)) {
+        setErrorMessage("please provide blog is properly or do not at all");
+        setTimeout(() => setErrorMessage(""), 3000);
+        navigate("/blogs");
+        return;
+      }
+      setBlogId(blogId);
+    } else {
+      return;
+    }
+  }, [params, setBlogId, setErrorMessage, navigate]);
   useEffect(() => {
     if (titleOrContent === "content") {
       if (contentRef.current) {
@@ -72,6 +97,15 @@ export default function CreateBlog() {
   const publishMutation = useMutation({
     mutationKey: ["publish-mutation"],
     mutationFn: async (isDraft: boolean) => {
+      if (blogId) {
+        const response = await api.put("/blog", {
+          title,
+          content,
+          isDraft,
+          blogId,
+        });
+        return response.data;
+      }
       const response = await api.post("/blog", {
         title,
         content,
