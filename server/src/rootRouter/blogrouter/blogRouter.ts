@@ -146,7 +146,6 @@ blogRouter.post("/", async (c) => {
     }
     const { title, content } = reqBody;
     const { prisma, userId } = c.var;
-    console.log({ title, content });
     const alreadyExists = await prisma.blog.findFirst({
       where: { title, content },
     });
@@ -191,6 +190,12 @@ blogRouter.put("/", async (c) => {
     const blogObject = await prisma.blog.findFirst({ where: { id: blogId } });
     if (!blogObject) {
       return c.json({ msg: "blog not found" }, StatusCodes.notFound);
+    }
+    if (!blogObject.isDraft) {
+      return c.json(
+        { msg: "cannot update an already published blog " },
+        StatusCodes.conflict
+      );
     }
     const blogAuthorId = blogObject.userId;
     if (!(userId === blogAuthorId)) {
