@@ -49,27 +49,31 @@ export function BlogButton({
               }
             : () => navigate("/blog?id=" + id)
         }
-        className="text-left bg-inherit mt-16 w-[80%] mx-auto p-2 rounded-lg cursor-pointer hover:bg-violet-900/30"
+        className="text-left sm:bg-inherit sm:mt-16  mt-6 sm:w-[80%] w-[97%] mx-auto p-2 rounded-lg cursor-pointer bg-violet-900/30 hover:bg-violet-900/70 sm:hover:bg-violet-900/30 "
       >
-        <div className="flex justify-between w-[97%]">
+        <div className="flex justify-between w-[97%] ">
           <div className="flex space-x-3  w-fit  drop-shadow-2xl">
             <div className="shrink-0 pt-2">
               <NotebookPen
                 // size={30}
-                className="max-h-7 max-w-7 h-7 w-7 text-neutral-50 "
+                className="sm:h-7 sm:w-7 h-5 w-5 text-neutral-50 "
               ></NotebookPen>
             </div>
-            <div className="text-3xl font-semibold text-green-300">
+            <div className="sm:text-3xl text-xl  font-semibold text-green-300">
               {heading}
             </div>
           </div>
           <div
-            className={`flex space-x-1 border-2 rounded-lg border-purple-600 px-2 pt-1 max-h-12 ${
+            className={`flex space-x-1 border-2 rounded-lg  border-purple-600 px-2 pt-1 sm:max-h-12 max-h-10 ${
               isDraft ? `visible` : `hidden`
             } `}
           >
-            <div className="text-2xl font-semibold text-blue-200">draft</div>
-            <ClipboardPen className=" h-9 text-cyan-400"> </ClipboardPen>
+            <div className="sm:text-2xl text-xl font-semibold text-blue-200">
+              draft
+            </div>
+            <div className="pt-1 sm:pt-0">
+              <ClipboardPen className=" sm:h-9 h-5  text-cyan-400"></ClipboardPen>
+            </div>
           </div>
         </div>
       </motion.div>

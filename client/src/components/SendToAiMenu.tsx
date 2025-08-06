@@ -21,6 +21,7 @@ export function SendToAiMenu({ x, y }: SelectionPositionProps) {
   console.log(selection);
   console.log(x, y);
   const { exitAnimation, setExitAnimation } = useExitAnimationState();
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
   const { setWaiting } = useWaitingState();
   const [isDialogueBoxOpen, setIsDialogueBoxOpen] = useState<boolean>(false);
   const [isCustonPromptOpen, setIsCustomPromptOpen] = useState<boolean>(false);
@@ -28,6 +29,13 @@ export function SendToAiMenu({ x, y }: SelectionPositionProps) {
   const { title, content, setTitle, setContent } = useTitleAndContentState();
   const { titleOrContent } = useTitleOrContentState();
   const { setErrorMessage } = useErrorState();
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(`(max-width: 640px)`);
+    setIsSmallScreen(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setIsSmallScreen(e.matches);
+    mediaQuery.addEventListener("change", handler);
+    return mediaQuery.removeEventListener("change", handler);
+  }, []);
   const customPromptMutation = useMutation({
     mutationFn: async () => {
       const response = await api.post("/blog/ai/refine", {
@@ -77,11 +85,16 @@ export function SendToAiMenu({ x, y }: SelectionPositionProps) {
   }, [isPending, setWaiting]);
   return isCustonPromptOpen ? (
     <div
-      className=" bg-slate-800 w-fit rounded-lg p-2  "
-      style={{ position: "fixed", top: `${y}px`, left: `${x}px` }}
+      className=" bg-slate-800 w-fit rounded-lg sm:p-2 p-1  "
+      style={{
+        position: "fixed",
+        top: isSmallScreen ? `50%` : `${y}px`,
+        left: isSmallScreen ? `50%` : `${x}px`,
+        transform: isSmallScreen ? `translate(-50%, -50%)` : "0",
+      }}
     >
       <textarea
-        className="border-0 resize-none field-sizing-content text-lg font-light placeholder:text-slate-600 rounded-lg p-3 w-80 outline-none text-slate-300 tracking-wide "
+        className="border-0 resize-none field-sizing-content sm:text-lg text-md font-light placeholder:text-slate-600 rounded-lg sm:p-3 p-1 sm:w-80 w-50 outline-none text-slate-300 tracking-normal sm:tracking-wide "
         placeholder="eg: make this text more persuasive"
         value={customPrompt}
         onChange={(event) => {
@@ -90,7 +103,7 @@ export function SendToAiMenu({ x, y }: SelectionPositionProps) {
       ></textarea>
       <div className="flex justify-between py-1 px-1">
         <button
-          className="bg-slate-300 text-slate-900 rounded-lg text-sm hover:bg-slate-600 p-2 cursor-pointer transition-all ease-in-out duration-100"
+          className="bg-slate-300 text-slate-900 rounded-lg text-xs sm:text-sm hover:bg-slate-600 p-1 sm:p-2 cursor-pointer transition-all ease-in-out duration-100"
           onClick={() => {
             setIsCustomPromptOpen(false);
           }}
@@ -106,17 +119,22 @@ export function SendToAiMenu({ x, y }: SelectionPositionProps) {
             customPromptMutation.mutate();
           }}
         >
-          <ArrowUpRight className="text-slate-800 h-5 w-5 group-hover:rotate-45 group-hover:scale-110 transition-all ease-in-out duration-100"></ArrowUpRight>
+          <ArrowUpRight className="text-slate-800 sm:h-5 sm:w-5 w-3 h-3 group-hover:rotate-45 group-hover:scale-110 transition-all ease-in-out duration-100"></ArrowUpRight>
         </button>
       </div>
     </div>
   ) : (
     <div
       className={`flex text-slate-300  w-fit  `}
-      style={{ position: "fixed", top: `${y}px`, left: `${x}px` }}
+      style={{
+        position: "fixed",
+        top: isSmallScreen ? `50%` : `${y}px`,
+        left: isSmallScreen ? `50%` : `${x}px`,
+        transform: isSmallScreen ? `translate(-50%, -50%)` : "0",
+      }}
     >
       <button
-        className="text-md p-3 h-12 max-h-12 bg-blue-950 cursor-pointer border-l border-r-2 border-r-slate-900 border-blue-950 rounded-l-lg hover:bg-blue-950/80"
+        className="sm:text-md text-sm p-1 sm:p-3 sm:h-12 sm:max-h-12 min-h-10 max-h-10 bg-blue-950 cursor-pointer border-l border-r-2 border-r-slate-900 border-blue-950 rounded-l-lg hover:bg-blue-950/80"
         onClick={() => {
           setIsCustomPromptOpen(true);
         }}
@@ -125,7 +143,7 @@ export function SendToAiMenu({ x, y }: SelectionPositionProps) {
       </button>
       <div>
         <button
-          className="text-md p-3  bg-blue-950 border-r border-blue-950 rounded-r-lg hover:bg-blue-950/80 cursor-pointer"
+          className="text-md min-h-10  sm:min-h-none sm:p-3 p-1  bg-blue-950 border-r border-blue-950 rounded-r-lg hover:bg-blue-950/80 cursor-pointer"
           onClick={() => {
             if (isDialogueBoxOpen && !exitAnimation) {
               setExitAnimation(true);

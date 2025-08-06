@@ -93,7 +93,7 @@ export default function BlogPage() {
   return isChecking ? (
     <LoaderPage></LoaderPage>
   ) : isLoggedIn ? (
-    <div className="min-h-screen w-full bg-gradient-to-br from-fuchsia-950 to-slate-950 px-[20%] pt-6 pb-6">
+    <div className="min-h-screen w-full bg-gradient-to-br from-fuchsia-950 to-slate-950 sm:px-[20%] px-[3%] pt-6 pb-6">
       <div className="">
         <Navbar></Navbar>
       </div>
@@ -110,10 +110,10 @@ export default function BlogPage() {
         </>
       ) : isSuccess && !data.blogObject.isDraft ? (
         <div className="text-center">
-          <div className="text-left inline-block  w-9/10  text-5xl font-bold text-fuchsia-400 my-12">
+          <div className="text-left inline-block  w-9/10 text-3xl  sm:text-5xl font-bold text-fuchsia-400 my-6 sm:my-12">
             {data.blogObject.title}
           </div>
-          <div className="text-left inline-block  w-8/9 text-xl font-md text-fuchsia-200">
+          <div className="text-left inline-block  w-8/9 sm:text-xl text-md font-md text-fuchsia-200">
             {data.blogObject.content}
           </div>
         </div>

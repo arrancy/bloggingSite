@@ -8,7 +8,7 @@ export function Navbar() {
   const [isButtonToggled, setIsButtonToggled] = useState<boolean>(false);
   return (
     <>
-      <div className="sm:hidden visible flex justify-between sticky top-0  px-2 py-2 rounded-lg shadow-md focus:shadow-lg shadow-pink-900">
+      <div className="sm:hidden visible z-10 bg-gradient-to-br pt-3 from-slate-950 to-purple-950 flex justify-between sticky top-0  px-2 py-2 rounded-lg shadow-md focus:shadow-lg shadow-pink-900">
         <button
           onClick={() => setIsButtonToggled(!isButtonToggled)}
           className={
@@ -19,7 +19,7 @@ export function Navbar() {
           <div className="h-0.5 w-3 mx-auto   bg-purple-400"></div>
           <div className="h-0.5 w-3 mx-auto mt-0.5  bg-purple-400"></div>
         </button>
-        <div className="flex sm:justify-center sm:space-x-2">
+        <div className="flex sm:justify-center space-x-1 sm:space-x-2">
           <div className="w-8">
             <img src={logoImage} className="max-w-full w-fit "></img>
           </div>
@@ -34,7 +34,7 @@ export function Navbar() {
     ${
       isButtonToggled
         ? "opacity-100 max-h-screen py-4 "
-        : "opacity-0 max-h-0 py-0 pointer-events-none sm:"
+        : "opacity-0 max-h-0 py-0 pointer-events-none "
     }
   `}
       >

@@ -11,10 +11,12 @@ export function SuccessfulPopup({ label }: { label: string }) {
             transition={{ duration: 1, ease: "easeInOut" }}
             className="inline-block"
           >
-            <Check className="text-green-500 text-xl pt-2"></Check>
+            <Check className="text-green-500 sm:text-xl text-lg pt-2"></Check>
           </motion.span>
         </div>
-        <div className="text-xl font-semibold text-slate-200">{label}</div>
+        <div className="sm:text-xl text-lg font-semibold text-slate-200">
+          {label}
+        </div>
       </div>
     </div>
   );

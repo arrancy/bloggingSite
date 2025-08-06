@@ -16,6 +16,8 @@ import api from "../axios/baseUrl";
 import { useSuccessState } from "../store/successState";
 import { SuccessfulPopup } from "../components/SuccessfulPopup";
 import axios from "axios";
+import { useLogoutModalState } from "../store/logoutModalState";
+import { LogoutModaL } from "../components/LogoutModal";
 interface SelectionPosition {
   x: number;
   y: number;
@@ -34,6 +36,7 @@ export default function CreateBlog() {
   const { titleOrContent, setTitleOrContent } = useTitleOrContentState();
   const { errorMessage, setErrorMessage } = useErrorState();
   const { successMessage, setSuccessMessage } = useSuccessState();
+  const { isLogoutModalActive } = useLogoutModalState();
   const inputRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -151,7 +154,8 @@ export default function CreateBlog() {
   return isChecking ? (
     <LoaderPage />
   ) : isLoggedIn ? (
-    <div className="min-h-screen max-w-screen bg-gradient-to-br from-slate-950 to-fuchsia-950 px-[15%] pt-8 pb-16">
+    <div className="min-h-screen max-w-screen bg-gradient-to-br from-slate-950 to-fuchsia-950 sm:px-[15%] px-[5%] pt-8 pb-16">
+      {isLogoutModalActive && <LogoutModaL></LogoutModaL>}
       <Navbar></Navbar>
       <div>
         <div
@@ -185,7 +189,7 @@ export default function CreateBlog() {
             setTitleOrContent(null);
             setSelection("");
           }}
-          className=" w-full mx-auto mt-24  shadow-md rounded-2xl  bg-fuchsia-950/40 backdrop-blur-xl border-2 border-purple-950 focus-within:shadow-sky-500 transition-shadow ease-in-out duration-200"
+          className=" w-full mx-auto mt-24  shadow-md rounded-2xl  bg-fuchsia-950/40 backdrop-blur-xl border-2 border-purple-950 focus-within:shadow-sky-500 transition-shadow ease-in-out  duration-200"
         >
           <div
             className="w-full  px-5 rounded-lg  pt-4 "
@@ -258,7 +262,7 @@ export default function CreateBlog() {
               </div>
             ) : (
               <textarea
-                className="  resize-none w-full field-sizing-content py-2 text-xl tracking-wide  font-light text-slate-100 placeholder-purple-700/40  focus:outline-none "
+                className="  resize-none w-full field-sizing-content py-2 text-xl tracking-wide sm:min-h-none min-h-30  font-light text-slate-100 placeholder-purple-700/40  focus:outline-none "
                 placeholder="enter your blog text here..."
                 ref={contentTextareaRef}
                 value={content}

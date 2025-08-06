@@ -14,8 +14,6 @@ import { ErrorPopup } from "../components/ErrorPopup";
 
 export default function Blogs() {
   const { isChecking, isLoggedIn } = useAuthentication();
-  // const {isPending, isSuccess, isError, data} = useQuery({queryKey : ["getBlogs"], queryFn : async ()=>{
-  // }})
   const { errorMessage, setErrorMessage } = useErrorState();
   const { isPending, isError, isSuccess, data, error } = useQuery({
     queryKey: ["get-all-blogs"],
@@ -54,9 +52,13 @@ export default function Blogs() {
     <LoaderPage />
   ) : isLoggedIn && isSuccess ? (
     <>
-      <div className="min-h-screen w-full text-center bg-gradient-to-br from-slate-950 to-purple-950 pb-10 pt-4 px-[15%]">
-        <Navbar></Navbar>
-        <div className="text-slate-200 text-8xl font-bold ">Blogs.</div>
+      <div className="min-h-screen w-full text-center bg-gradient-to-br from-slate-950 to-purple-950 pb-10 pt-4  sm:px-[15%]">
+        <div className="px-6 sm:px-0">
+          <Navbar></Navbar>
+        </div>
+        <div className="text-slate-200 sm:text-8xl text-6xl sm:mt-0 mt-6 font-bold ">
+          Blogs.
+        </div>
         <div className="   mx-auto">
           {data.allBlogs.map(
             (
