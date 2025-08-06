@@ -9,7 +9,7 @@ export function NavElement({ label, redirect }: NavElementProps) {
   const navigate = useNavigate();
   return (
     <div
-      className="rounded-lg sm:px-2 px-2 hover:text-slate-200 hover:bg-purple-950 cursor-pointer"
+      className="rounded-lg sm:px-2 px-2 py-2 sm:py-0 hover:text-slate-200 hover:bg-purple-950 cursor-pointer"
       onClick={() => {
         navigate("/" + redirect);
       }}

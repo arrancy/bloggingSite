@@ -15,7 +15,7 @@ export default function LandingPage() {
   const { successMessage } = useSuccessState();
   return (
     <>
-      <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 to-fuchsia-950 px-4 sm:px-8 md:px-16 lg:px-32 xl:px-64 pt-4">
+      <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 to-fuchsia-950 px-4 sm:px-8 md:px-16 lg:px-32 xl:px-64 sm:pt-4 pt-2">
         {isLogoutModalActive && <LogoutModaL></LogoutModaL>}
         {errorMessage && (
           <>
@@ -31,7 +31,7 @@ export default function LandingPage() {
             <SuccessfulPopup label={successMessage}></SuccessfulPopup>
           </>
         )}
-        \<Navbar></Navbar>
+        <Navbar></Navbar>
         <Hero></Hero>
       </div>
     </>
