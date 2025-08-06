@@ -16,6 +16,7 @@ import { RefreshTokenPayload } from "../../auth/authTypes/RefreshTokenPayload";
 import { generateAccessAndRefreshToken } from "../../auth/authUtils/generateAccessAndRefreshToken";
 import { signinSchema } from "../../zodTypes/signinSchema";
 import { authMiddleware } from "../../auth/authMiddleWare";
+import { JwtTokenExpired } from "hono/utils/jwt/types";
 interface Env extends Variables, Bindings {
   Bindings: Bindings;
   Variables: Variables;
@@ -317,66 +318,83 @@ userRouter.get("/verify", async (c) => {
   }
 });
 userRouter.post("/signin", async (c) => {
-  type ReqBody = z.infer<typeof signinSchema>;
-  const reqBody: ReqBody = await c.req.json();
-  const { success } = signinSchema.safeParse(reqBody);
-  if (!success) {
-    return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
-  }
-  const { email } = reqBody;
-  const { prisma } = c.var;
-  const userExists = await prisma.user.findFirst({ where: { email } });
-  if (!(userExists && userExists.verified)) {
-    return c.json(
-      { msg: "invalid credentials or email not verified " },
-      StatusCodes.unauthenticad
-    );
-  }
-  const { id, username } = userExists;
-  // now the logic to check from how many devices is this person logged in from
-
-  // check and remove stale refresh tokens
-  const sevenDaysBefore = new Date();
-  sevenDaysBefore.setDate(sevenDaysBefore.getDate() - 7);
-  const refreshTokensDeleted = await prisma.refreshToken.deleteMany({
-    where: { createdAt: { lte: sevenDaysBefore } },
-  });
-
-  const refreshTokens = await prisma.refreshToken.findMany({
-    where: { userId: id },
-  });
-  const numberOfRefreshtokens = refreshTokens.length;
-  console.log(numberOfRefreshtokens);
-  if (numberOfRefreshtokens <= 2) {
-    const correctPassword = bcrypt.compareSync(
-      reqBody.password,
-      userExists.password
-    );
-    if (!correctPassword) {
-      return c.json({ msg: "invalid credentials" }, StatusCodes.unauthenticad);
+  try {
+    type ReqBody = z.infer<typeof signinSchema>;
+    const reqBody: ReqBody = await c.req.json();
+    const { success } = signinSchema.safeParse(reqBody);
+    if (!success) {
+      return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
     }
-    const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = c.env;
-    const { accessToken, refreshToken, jti } =
-      await generateAccessAndRefreshToken(
-        id,
-        username,
-        ACCESS_TOKEN_SECRET,
-        REFRESH_TOKEN_SECRET
-      );
-    const refreshTokenInDatabase = await prisma.refreshToken.create({
-      data: { jti, token: refreshToken, userId: id },
-    });
-    if (!refreshTokenInDatabase) {
+    const { email } = reqBody;
+    const { prisma } = c.var;
+    const userExists = await prisma.user.findFirst({ where: { email } });
+    if (!(userExists && userExists.verified)) {
       return c.json(
-        { msg: "an unknown error occured, retry please" },
-        StatusCodes.internalServerError
+        { msg: "invalid credentials or email not verified " },
+        StatusCodes.unauthenticad
       );
     }
-    setCookie(c, "access_token", accessToken, accessTokenCookieOptions);
-    setCookie(c, "refresh_token", refreshToken, refreshTokenCookieOptions);
-    return c.json({ msg: "logged in successfully" }, 200);
-  } else {
-    return c.json({ msg: "device login limit reached " }, StatusCodes.conflict);
+    const { id, username } = userExists;
+    // now the logic to check from how many devices is this person logged in from
+
+    // check and remove stale refresh tokens
+    const sevenDaysBefore = new Date();
+    sevenDaysBefore.setDate(sevenDaysBefore.getDate() - 7);
+    const refreshTokensDeleted = await prisma.refreshToken.deleteMany({
+      where: { createdAt: { lte: sevenDaysBefore } },
+    });
+
+    const refreshTokens = await prisma.refreshToken.findMany({
+      where: { userId: id },
+    });
+    const numberOfRefreshtokens = refreshTokens.length;
+    console.log(numberOfRefreshtokens);
+    if (numberOfRefreshtokens <= 2) {
+      const correctPassword = bcrypt.compareSync(
+        reqBody.password,
+        userExists.password
+      );
+      if (!correctPassword) {
+        return c.json(
+          { msg: "invalid credentials" },
+          StatusCodes.unauthenticad
+        );
+      }
+      const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = c.env;
+      const { accessToken, refreshToken, jti } =
+        await generateAccessAndRefreshToken(
+          id,
+          username,
+          ACCESS_TOKEN_SECRET,
+          REFRESH_TOKEN_SECRET
+        );
+      const [deletePreviosRefreshToken, refreshTokenInDatabase] =
+        await prisma.$transaction([
+          prisma.refreshToken.deleteMany({ where: { userId: id } }),
+          prisma.refreshToken.create({
+            data: { jti, token: refreshToken, userId: id },
+          }),
+        ]);
+      if (!refreshTokenInDatabase || !deletePreviosRefreshToken) {
+        return c.json(
+          { msg: "an unknown error occured, retry please" },
+          StatusCodes.internalServerError
+        );
+      }
+      setCookie(c, "access_token", accessToken, accessTokenCookieOptions);
+      setCookie(c, "refresh_token", refreshToken, refreshTokenCookieOptions);
+      return c.json({ msg: "logged in successfully" }, 200);
+    } else {
+      return c.json(
+        { msg: "device login limit reached " },
+        StatusCodes.conflict
+      );
+    }
+  } catch (error) {
+    return c.json(
+      { msg: "internal server error" },
+      StatusCodes.internalServerError
+    );
   }
 });
 userRouter.get("/refreshToken", async (c) => {
@@ -396,7 +414,6 @@ userRouter.get("/refreshToken", async (c) => {
     const oldJti = decoded.jti;
     const userExists = await prisma.user.findFirst({ where: { id: userId } });
     if (!userExists) {
-      console.log("user does not exist");
       return c.json({ msg: "invalid credentials" }, StatusCodes.unauthenticad);
     }
     const { username } = userExists;
@@ -415,18 +432,24 @@ userRouter.get("/refreshToken", async (c) => {
         ACCESS_TOKEN_SECRET,
         REFRESH_TOKEN_SECRET
       );
-    const refreshTokenInDb = await prisma.refreshToken.create({
-      data: { token: refreshToken, jti, userId },
-    });
+    const [deletePreviosRefreshToken, refreshTokenInDb] =
+      await prisma.$transaction([
+        prisma.refreshToken.delete({ where: { id: refreshTokenFound.id } }),
+        prisma.refreshToken.create({
+          data: { token: refreshToken, jti, userId },
+        }),
+      ]);
     setCookie(c, "access_token", accessToken, accessTokenCookieOptions);
     setCookie(c, "refresh_token", refreshToken, refreshTokenCookieOptions);
     return c.json({ msg: "tokens refreshed successfully" }, 200);
   } catch (error) {
     console.log(error);
-    return c.json(
-      { msg: "internal server error " },
-      StatusCodes.internalServerError
-    );
+
+    if (error)
+      return c.json(
+        { msg: "internal server error " },
+        StatusCodes.internalServerError
+      );
   }
 });
 
