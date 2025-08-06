@@ -30,7 +30,7 @@ export function Navbar() {
       </div>
 
       <div
-        className={`text-slate-200 absolute z-20 rounded-lg shadow-md bg-gradient-to-br from-slate-950 to-purple-950 border-fuchsia-300 shadow-fuchsia-800 font-semibold sm:sticky sm:top-0 sm:flex sm:justify-between sm:w-full w-fit hover:shadow-lg pl-2 pr-3 py-0 sm:py-2 sm:px-2 sm:visible sm:mb-4 overflow-hidden sm:overflow-auto sm:opacity-100 sm:pointer-events-auto sm:max-h-none transition-all duration-500 ease-in-out
+        className={`text-slate-200 absolute z-10 rounded-lg shadow-md bg-gradient-to-br from-slate-950 to-purple-950 border-fuchsia-300 shadow-fuchsia-800 font-semibold sm:sticky sm:top-0 sm:flex sm:justify-between sm:w-full w-fit hover:shadow-lg pl-2 pr-3 py-0 sm:py-2 sm:px-2 sm:visible sm:mb-4 overflow-hidden sm:overflow-auto sm:opacity-100 sm:pointer-events-auto sm:max-h-none transition-all duration-500 ease-in-out
     ${
       isButtonToggled
         ? "opacity-100 max-h-screen py-4 "

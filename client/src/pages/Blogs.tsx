@@ -9,12 +9,16 @@ import { useErrorState } from "../store/errorState";
 import { useCallback, useEffect } from "react";
 import axios from "axios";
 import { ErrorPopup } from "../components/ErrorPopup";
+import { useLogoutModalState } from "../store/logoutModalState";
+import { LogoutModaL } from "../components/LogoutModal";
+
 // import { useQuery } from "@tanstack/react-query";
 // import { nav } from "motion/react-client";
 
 export default function Blogs() {
   const { isChecking, isLoggedIn } = useAuthentication();
   const { errorMessage, setErrorMessage } = useErrorState();
+  const { isLogoutModalActive } = useLogoutModalState();
   const { isPending, isError, isSuccess, data, error } = useQuery({
     queryKey: ["get-all-blogs"],
     queryFn: async () => {
@@ -52,6 +56,8 @@ export default function Blogs() {
     <LoaderPage />
   ) : isLoggedIn && isSuccess ? (
     <>
+      {isLogoutModalActive && <LogoutModaL></LogoutModaL>}
+
       <div className="min-h-screen w-full text-center bg-gradient-to-br from-slate-950 to-purple-950 pb-10 pt-4  sm:px-[15%]">
         <div className="px-6 sm:px-0">
           <Navbar></Navbar>

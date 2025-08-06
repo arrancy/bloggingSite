@@ -9,11 +9,14 @@ import { LoadingSpinner } from "../components/LoadingSpinner";
 import axios from "axios";
 import { Navbar } from "../components/Navbar";
 import { useTitleAndContentState } from "../store/titleAndDescription";
+import { useLogoutModalState } from "../store/logoutModalState";
+import { LogoutModaL } from "../components/LogoutModal";
 
 export default function BlogPage() {
   const { isChecking, isLoggedIn } = useAuthentication();
   const { errorMessage, setErrorMessage } = useErrorState();
   const { setTitle, setContent } = useTitleAndContentState();
+  const { isLogoutModalActive } = useLogoutModalState();
   const [params] = useSearchParams();
   const [blogId, setBlogId] = useState<number | null>(0);
   const navigate = useNavigate();
@@ -94,6 +97,7 @@ export default function BlogPage() {
     <LoaderPage></LoaderPage>
   ) : isLoggedIn ? (
     <div className="min-h-screen w-full bg-gradient-to-br from-fuchsia-950 to-slate-950 sm:px-[20%] px-[3%] pt-6 pb-6">
+      {isLogoutModalActive && <LogoutModaL></LogoutModaL>}{" "}
       <div className="">
         <Navbar></Navbar>
       </div>

@@ -6,6 +6,8 @@ import { LoaderPage } from "./LoaderPage";
 import { Navigate } from "react-router-dom";
 import { BlogButton } from "../components/BlogButton";
 import { Navbar } from "../components/Navbar";
+import { useLogoutModalState } from "../store/logoutModalState";
+import { LogoutModaL } from "../components/LogoutModal";
 // import useAuthentication from "../utils/amIAuthenticated";
 // import { LoaderPage } from "./LoaderPage";
 interface BlogsResponseObject {
@@ -16,6 +18,7 @@ interface BlogsResponseObject {
 }
 export default function BlogDashboard() {
   const { isChecking, isLoggedIn } = useAuthentication();
+  const { isLogoutModalActive } = useLogoutModalState();
   const { isLoading, isError, data, error } = useQuery({
     queryKey: ["userBlogs"],
     queryFn: async () => {
@@ -36,6 +39,7 @@ export default function BlogDashboard() {
     </div>
   ) : (
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 to-purple-950 sm:pt-7 pt-3 sm:px-[15%] px-4 pb-4">
+      {isLogoutModalActive && <LogoutModaL></LogoutModaL>}
       <div className="sm:mt-4 ">
         <Navbar></Navbar>
       </div>
