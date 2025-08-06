@@ -35,7 +35,7 @@ export default function BlogDashboard() {
       an error occured : {" " + error.message}
     </div>
   ) : (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 to-purple-950 pt-7 px-[15%] ">
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-950 to-purple-950 pt-7 px-[15%] pb-4">
       <div className="mt-4">
         <Navbar></Navbar>
       </div>

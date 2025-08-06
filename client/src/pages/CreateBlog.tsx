@@ -322,9 +322,7 @@ export default function CreateBlog() {
       {successMessage && (
         <div className="fixed top-0 left-0 h-screen w-screen z-10 bg-black/50"></div>
       )}
-      <div className=" border-2 border-amber-200 text-2xl text-white ">
-        {selection}
-      </div>
+
       {errorMessage && (
         <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           <ErrorPopup label={errorMessage}></ErrorPopup>
