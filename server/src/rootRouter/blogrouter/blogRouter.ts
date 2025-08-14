@@ -227,13 +227,24 @@ blogRouter.put("/", async (c) => {
 
 blogRouter.delete("/", async (c) => {
   try {
-    type ReqBody = z.infer<typeof deleteBlogSchema>;
-    const reqBody: ReqBody = await c.req.json();
-    const { success } = deleteBlogSchema.safeParse(reqBody);
+    const { success } = deleteBlogSchema.safeParse(c.req.query());
     if (!success) {
       return c.json({ msg: "invalid inputs" }, StatusCodes.invalidInputs);
     }
-    const { blogId } = reqBody;
+    const blogIdString = c.req.query("blogId");
+    if (!blogIdString) {
+      return c.json(
+        { msg: "please send proper inputs" },
+        StatusCodes.invalidInputs
+      );
+    }
+    const blogId = parseInt(blogIdString);
+    if (isNaN(blogId)) {
+      return c.json(
+        { msg: "please send proper inputs " },
+        StatusCodes.invalidInputs
+      );
+    }
     const { prisma, userId } = c.var;
     const blogObject = await prisma.blog.findFirst({ where: { id: blogId } });
     if (!blogObject) {

@@ -1,7 +1,8 @@
-import { ClipboardPen, NotebookPen } from "lucide-react";
+import { ClipboardPen, NotebookPen, Trash } from "lucide-react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { useTitleAndContentState } from "../store/titleAndDescription";
+import { useDeletePopupState } from "../store/deletePopup";
 
 interface BlogButtonProps {
   heading: string;
@@ -20,6 +21,7 @@ export function BlogButton({
 }: BlogButtonProps) {
   const navigate = useNavigate();
   const { setTitle, setContent } = useTitleAndContentState();
+  const { setIsDeletePopupActive, setDeleteId } = useDeletePopupState();
   return (
     <>
       <motion.div
@@ -59,20 +61,32 @@ export function BlogButton({
                 className="sm:h-7 sm:w-7 h-5 w-5 text-neutral-50 "
               ></NotebookPen>
             </div>
-            <div className="sm:text-3xl text-xl  font-semibold text-green-300">
+            <div className="sm:text-3xl text-xl  font-semibold text-green-300 mr-2">
               {heading}
             </div>
           </div>
-          <div
-            className={`flex space-x-1 border-2 rounded-lg  border-purple-600 px-2 pt-1 sm:max-h-12 max-h-10 ${
-              isDraft ? `visible` : `hidden`
-            } `}
-          >
-            <div className="sm:text-2xl text-xl font-semibold text-blue-200">
-              draft
+          <div className="flex items-center space-x-2">
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteId(id);
+                setIsDeletePopupActive(true);
+              }}
+              className="text-red-600 border-2 sm:px-1 py-1 sm:py-0 bg-purple-800/65 border-red-500 rounded-md hover:scale-105 hover:text-red-700 hover:border-red-700 transition-all ease-in-out duration-200 "
+            >
+              <Trash className="sm:h-9 h-5 "></Trash>
             </div>
-            <div className="pt-1 sm:pt-0">
-              <ClipboardPen className=" sm:h-9 h-5  text-cyan-400"></ClipboardPen>
+            <div
+              className={`flex space-x-1 border-2 rounded-lg  border-purple-600 px-2 pt-1 sm:max-h-12 max-h-10 ${
+                isDraft ? `visible` : `hidden`
+              } `}
+            >
+              <div className="sm:text-2xl text-xl pb-1.5 font-semibold text-blue-200">
+                draft
+              </div>
+              <div className="pt-1 sm:pt-0">
+                <ClipboardPen className=" sm:h-9 h-5  text-cyan-400"></ClipboardPen>
+              </div>
             </div>
           </div>
         </div>
