@@ -2,20 +2,23 @@ import { useEffect, useState } from "react";
 
 const amIAuthenticated = async () => {
   try {
-    const response = await fetch("http://localhost:8787/me", {
+    const response = await fetch("https://api.writeintelligent.blog/me", {
       credentials: "include",
     });
     if (response.ok) {
       return true;
     } else {
       const refreshTokenResponse = await fetch(
-        "http://localhost:8787/api/v1/user/refreshToken",
+        "https://api.writeintelligent.blog/api/v1/user/refreshToken",
         { credentials: "include" }
       );
       if (refreshTokenResponse.ok) {
-        const newResponse = await fetch("http://localhost:8787/me", {
-          credentials: "include",
-        });
+        const newResponse = await fetch(
+          "https://api.writeintelligent.blog/me",
+          {
+            credentials: "include",
+          }
+        );
         if (newResponse.ok) {
           return true;
         } else {

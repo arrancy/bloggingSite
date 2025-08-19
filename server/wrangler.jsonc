@@ -2,7 +2,15 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "server",
   "main": "src/index.ts",
-  "compatibility_date": "2025-03-20"
+  "compatibility_date": "2025-03-20",
+
+  "routes": [
+    {
+      "pattern": "api.writeintelligent.blog",
+      "custom_domain": true,
+    },
+  ],
+
   // "compatibility_flags": [
   //   "nodejs_compat"
   // ],
