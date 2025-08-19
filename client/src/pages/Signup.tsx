@@ -7,7 +7,6 @@ import { TopHeading } from "../components/TopHeading";
 import { useState } from "react";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { ErrorMessage } from "../components/ErrorMessage";
-import { useNavigate } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import api from "../axios/baseUrl";
 import useAuthentication from "../utils/amIAuthenticated";
@@ -28,7 +27,6 @@ export default function Signup() {
     password: "",
   });
   const { isChecking, isLoggedIn } = useAuthentication();
-  const navigate = useNavigate();
 
   const signupMutation = useMutation({
     mutationFn: async (signupInput: SignupInput) => {
@@ -36,8 +34,8 @@ export default function Signup() {
       return response;
     },
     onSuccess: (data) => {
-      if (data.statusText === "OK") {
-        navigate("/blogs");
+      if (data.status === 302) {
+        window.location.href = "https://mail.google.com";
       }
     },
   });
