@@ -44,7 +44,7 @@ const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 app.use(
   "*",
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://writeintelligent.blog",
     allowMethods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
     allowHeaders: ["Content-Type", "Authorization"],
     credentials: true,

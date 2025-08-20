@@ -67,11 +67,11 @@ userRouter.post("/signup", async (c) => {
     if (!userCreated) {
       console.log("we are here");
       return c.json(
-        { msg: "internal server error" },
+        { msg: "internal server error because user did not get created" },
         StatusCodes.internalServerError
       );
     }
-    const verificationUrl = `http://localhost:8787/api/v1/user/verify?verificationToken=${verificationToken}`;
+    const verificationUrl = `http://api.writeintelligent.blog/api/v1/user/verify?verificationToken=${verificationToken}`;
 
     //logic to redirect the user to frontend page where it says to check email to verify it
     //signin will check if the person is verified or not, only then a token will be issued
@@ -90,10 +90,14 @@ userRouter.post("/signup", async (c) => {
         StatusCodes.internalServerError
       );
     }
-    return c.redirect("http://google.com");
+    return c.json({ msg: "check mail for email verification" }, 200);
   } catch (error) {
     return c.json(
-      { msg: "internal server error" },
+      {
+        msg:
+          "internal server error " +
+          (error instanceof Error ? error.message : ""),
+      },
       StatusCodes.internalServerError
     );
   }
@@ -165,7 +169,7 @@ userRouter.get("/newVerificationToken/:email", async (c) => {
     const resend = new Resend(c.env.RESEND_API_KEY);
 
     if (currentTime - expiryDate <= fifteenMinutes) {
-      const verificationUrl = `http://localhost:8787/api/v1/user/verify?verificationToken=${token}`;
+      const verificationUrl = `https://api.writeintelligent.blog/api/v1/user/verify?verificationToken=${token}`;
       const { data, error } = await resend.emails.send({
         from: "no-reply@verify.writeintelligent.blog",
         to: email,
@@ -392,7 +396,11 @@ userRouter.post("/signin", async (c) => {
     }
   } catch (error) {
     return c.json(
-      { msg: "internal server error" },
+      {
+        msg:
+          "internal server error " +
+          (error instanceof Error ? error.message : ""),
+      },
       StatusCodes.internalServerError
     );
   }
