@@ -11,6 +11,8 @@ import { Navigate } from "react-router-dom";
 import api from "../axios/baseUrl";
 import useAuthentication from "../utils/amIAuthenticated";
 import { LoaderPage } from "./LoaderPage";
+import { useSuccessState } from "../store/successState";
+import { SuccessfulPopup } from "../components/SuccessfulPopup";
 
 interface SignupInput {
   name: string;
@@ -20,6 +22,7 @@ interface SignupInput {
 }
 
 export default function Signup() {
+  const { successMessage, setSuccessMessage } = useSuccessState();
   const [signupInput, setSignupInput] = useState<SignupInput>({
     name: "",
     email: "",
@@ -34,8 +37,12 @@ export default function Signup() {
       return response;
     },
     onSuccess: (data) => {
-      if (data.status === 302) {
-        window.location.href = "https://mail.google.com";
+      if (data.status === 200) {
+        setSuccessMessage("please check your email to verify");
+        setTimeout(() => {
+          window.location.href = "https://mail.google.com";
+          setSuccessMessage("");
+        }, 3000);
       }
     },
   });
@@ -103,6 +110,12 @@ export default function Signup() {
             toPage="signin"
           ></BottomMessage>
         </div>
+        {successMessage && (
+          <>
+            <div className="fixed top-0 left-0 h-screen w-screen z-10 bg-black/50"></div>
+            <SuccessfulPopup label={successMessage}></SuccessfulPopup>
+          </>
+        )}
       </div>
     </>
   ) : (
