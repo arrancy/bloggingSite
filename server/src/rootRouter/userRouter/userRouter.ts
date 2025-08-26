@@ -39,7 +39,14 @@ userRouter.post("/signup", async (c) => {
     const userExists = await prisma.user.findFirst({
       where: { OR: [{ email }, { username }] },
     });
+
     if (userExists) {
+      if (!userExists.verified) {
+        return c.json(
+          { msg: "please check email for verification link" },
+          StatusCodes.conflict
+        );
+      }
       return c.json(
         { msg: "user already exists, email or username already taken" },
         StatusCodes.conflict
@@ -81,7 +88,7 @@ userRouter.post("/signup", async (c) => {
       from: "no-reply@verify.writeintelligent.blog",
       to: email,
       subject: "verify your email",
-      html: `<p>to verify your email for writeintelligent.blog, click <a href=${verificationUrl}>here</a></p>`,
+      html: `<p>to verify your email for writeintelligent.blog, click <a href=${verificationUrl}>here</a>  </p><p>if the verification is successful you will be redirected to our create blog page </p>`,
     });
     console.log(data);
     if (error) {
@@ -105,134 +112,6 @@ userRouter.post("/signup", async (c) => {
   // const verificationTokenAdded = await prisma.verification_token.create({
   //   data: { token: verificationToken, userId: userCreated.id },
   // });
-});
-userRouter.get("/newVerificationToken/:email", async (c) => {
-  try {
-    type ReqBody = z.infer<typeof newVerificationTokenSchema>;
-    const reqBody: ReqBody = c.req.param();
-    const { success } = newVerificationTokenSchema.safeParse(reqBody);
-    if (!success) {
-      return c.json({ msg: "invalid email" }, StatusCodes.invalidInputs);
-    }
-    const { email } = reqBody;
-
-    const { prisma } = c.var;
-    const userExists = await prisma.user.findFirst({ where: { email } });
-    if (!userExists) {
-      return c.json({ msg: "please sign up" }, StatusCodes.notFound);
-    }
-    const { verified, id } = userExists;
-    if (verified) {
-      return c.json({ msg: "email is already verified" }, StatusCodes.conflict);
-    }
-    const expiredToken = await prisma.verification_token.findFirst({
-      where: { userId: id },
-    });
-    if (!expiredToken) {
-      // this case is generally not possible, but even if it happens, we need to issue a new verification token for the user
-      const newVerificationToken = generateVerificationToken();
-      const tommorowTime = new Date();
-      tommorowTime.setDate(tommorowTime.getDate() + 1);
-      const createNewVerificationToken = await prisma.verification_token.create(
-        {
-          data: {
-            token: newVerificationToken,
-            userId: id,
-            expiresAt: tommorowTime.toISOString(),
-          },
-        }
-      );
-      if (!createNewVerificationToken) {
-        return c.json(
-          { msg: "internal server error" },
-          StatusCodes.internalServerError
-        );
-      }
-      const { token } = createNewVerificationToken;
-      const newVerificationTokenUrl = `http://localhost:8787/api/v1/user/verify?verificationToken?=${token}`;
-      const resend = new Resend(c.env.RESEND_API_KEY);
-      const { data, error } = await resend.emails.send({
-        from: "no-reply@verify.writeintelligent.blog",
-        to: email,
-        subject: "verify your email",
-        html: `<p>to verify your email for writeintelligent.blog, click <a href=${newVerificationTokenUrl}>here</a></p>`,
-      });
-      if (error) {
-        return c.json({ msg: "error sending email : " + error.name }, 400);
-      }
-      return c.json({ msg: "email sent successfully" }, 200);
-    }
-    const { expiresAt, token } = expiredToken;
-    const currentTime = new Date().getTime();
-    const expiryDate = new Date(expiresAt).getTime();
-    const fifteenMinutes = -1 * (1000 * 60 * 15);
-    const resend = new Resend(c.env.RESEND_API_KEY);
-
-    if (currentTime - expiryDate <= fifteenMinutes) {
-      const verificationUrl = `https://api.writeintelligent.blog/api/v1/user/verify?verificationToken=${token}`;
-      const { data, error } = await resend.emails.send({
-        from: "no-reply@verify.writeintelligent.blog",
-        to: email,
-        subject: "verify your email",
-        html: `<p>to verify your email for writeintelligent.blog, click <a href=${verificationUrl}>here</a></p>`,
-      });
-      if (error) {
-        return c.json(
-          {
-            msg: "error sending verification email : " + error.name,
-          },
-          400
-        );
-      }
-      return c.json({
-        msg: "verification email has been sent, check your email",
-      });
-    }
-    // if we have reached here this means either the email has expired or is 15 minutes away from expiry, so effectively expired
-    const newVerificationToken = generateVerificationToken();
-    const tommorowTime = new Date();
-    tommorowTime.setDate(tommorowTime.getDate() + 1);
-    const deleteVerificationToken = await prisma.verification_token.delete({
-      where: { userId: id },
-    });
-    if (!deleteVerificationToken) {
-      return c.json(
-        { msg: "internal server error , please try again" },
-        StatusCodes.internalServerError
-      );
-    }
-    const newVerificationTokenCreated = await prisma.verification_token.create({
-      data: {
-        token: newVerificationToken,
-        expiresAt: tommorowTime.toISOString(),
-        userId: userExists.id,
-      },
-    });
-    if (!newVerificationTokenCreated) {
-      return c.json(
-        { msg: "could not create new verification token" },
-        StatusCodes.internalServerError
-      );
-    }
-    const newToken = newVerificationTokenCreated.token;
-    const newVerificationUrl = `http://localhost:8787/api/v1/user/verify?verificationToken=${newToken}`;
-    const { data, error } = await resend.emails.send({
-      from: "no-reply@verify.writeintelligent.blog",
-      to: email,
-      subject: "verify your email",
-      html: `<p>to verify your email for writeintelligent.blog, click <a href=${newVerificationUrl}>here</a></p>`,
-    });
-    if (error) {
-      return c.json({ msg: "error sending email : " + error.name }, 400);
-    }
-    return c.redirect("http://google.com");
-  } catch (error) {
-    console.log(error);
-    return c.json(
-      { msg: "internal server error" },
-      StatusCodes.internalServerError
-    );
-  }
 });
 userRouter.get("/verify", async (c) => {
   console.log("reached request");
@@ -259,7 +138,7 @@ userRouter.get("/verify", async (c) => {
     const verificationTokenValid = await prisma.verification_token.findFirst({
       where: { token: verification_token },
     });
-    if (!verificationTokenValid) {
+    if (!verificationTokenValid || !verificationTokenValid.token) {
       return c.json(
         { msg: "invalid verification token" },
         StatusCodes.invalidInputs
@@ -270,9 +149,54 @@ userRouter.get("/verify", async (c) => {
     const currentDateMilliseconds = new Date().getTime();
     const dateDifference = currentDateMilliseconds - expiryDateMilliseconds; //in js date objects can be subracted directly but TS was complaining so i had to convert them to millisecond numbers using getTime() method
     if (dateDifference >= 0) {
+      const tommorowTime = new Date();
+      tommorowTime.setDate(tommorowTime.getDate() + 1);
+      const newVerificationToken = generateVerificationToken();
+      const { id } = userExists;
+      const resend = new Resend(c.env.RESEND_API_KEY);
+
+      tommorowTime.setDate(tommorowTime.getDate() + 1);
+      const [deletedOldToken, createdNewToken] = await prisma.$transaction([
+        prisma.verification_token.delete({
+          where: { token: verificationTokenValid.token },
+        }),
+        prisma.verification_token.create({
+          data: {
+            token: newVerificationToken,
+            userId: id,
+            expiresAt: tommorowTime.toISOString(),
+          },
+        }),
+      ]);
+      if (!(deletedOldToken && createdNewToken)) {
+        return c.json(
+          { msg: "internal server error" },
+          StatusCodes.internalServerError
+        );
+      }
+
+      const newVerificationUrl = `https://api.writeintelligent.blog/api/v1/user/verify?verificationToken=${newVerificationToken}`;
+      const { data, error } = await resend.emails.send({
+        from: "no-reply@verify.writeintelligent.blog",
+        to: userExists.email,
+        subject: "verify your email",
+        html: `<p>to verify your email for writeintelligent.blog, click <a href=${newVerificationUrl}>here</a></p><p>if the verification is successful you will be redirected to our create blog page </p>`,
+      });
+      if (error) {
+        return c.json(
+          {
+            msg:
+              "error sending email, previous email expired, to redo this process, click on the old link again. : " +
+              error.name,
+          },
+          400
+        );
+      }
       return c.json(
-        { msg: "verification token expired" },
-        StatusCodes.unauthenticad
+        {
+          msg: "old token was expired, new one has been sent to your email successfully, please verify before 24 hours",
+        },
+        200
       );
     }
 
@@ -313,7 +237,7 @@ userRouter.get("/verify", async (c) => {
 
     setCookie(c, "access_token", accessToken, accessTokenCookieOptions);
     setCookie(c, "refresh_Token", refreshToken, refreshTokenCookieOptions);
-    return c.json({ msg: "email verified successfully" }, 200);
+    return c.redirect("https://writeintelligent.blog/createBlog");
   } catch (error) {
     return c.json(
       { msg: "internal server error" },
