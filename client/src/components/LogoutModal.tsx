@@ -21,7 +21,7 @@ export function LogoutModaL() {
       setSuccessMessage("logged out successfully");
       setTimeout(() => {
         setSuccessMessage("");
-        navigate("signin");
+        navigate("/signin");
       }, 3000);
     },
     onError: (error) => {
