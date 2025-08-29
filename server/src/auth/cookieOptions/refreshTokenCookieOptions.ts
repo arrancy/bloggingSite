@@ -2,7 +2,7 @@ import { CookieOptions } from "hono/utils/cookie";
 
 export const refreshTokenCookieOptions: CookieOptions = {
   path: "/",
-  domain: "localhost",
+  domain: "writeintelligent.blog",
   httpOnly: true,
   maxAge: 60 * 60 * 24 * 7,
   sameSite: "Strict",

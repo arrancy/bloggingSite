@@ -10,13 +10,11 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { accessTokenCookieOptions } from "../../auth/cookieOptions/accessTokenCookieOptions";
 import { refreshTokenCookieOptions } from "../../auth/cookieOptions/refreshTokenCookieOptions";
 import { StatusCodes } from "../../enums/enums";
-import { newVerificationTokenSchema } from "../../zodTypes/newVerificationTokenSchema";
 import { verify } from "hono/jwt";
 import { RefreshTokenPayload } from "../../auth/authTypes/RefreshTokenPayload";
 import { generateAccessAndRefreshToken } from "../../auth/authUtils/generateAccessAndRefreshToken";
 import { signinSchema } from "../../zodTypes/signinSchema";
 import { authMiddleware } from "../../auth/authMiddleWare";
-import { JwtTokenExpired } from "hono/utils/jwt/types";
 interface Env extends Variables, Bindings {
   Bindings: Bindings;
   Variables: Variables;
