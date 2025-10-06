@@ -384,7 +384,13 @@ userRouter.get("/refreshToken", async (c) => {
 });
 
 userRouter.get("/logout", authMiddleware, (c) => {
-  deleteCookie(c, "access_token");
-  deleteCookie(c, "refresh_token");
+  deleteCookie(c, "access_token", {
+    domain: "writeintelligent.blog",
+    path: "/",
+  });
+  deleteCookie(c, "refresh_token", {
+    domain: "writeintelligent.blog",
+    path: "/",
+  });
   return c.json({ msg: "logged out successfully" }, 200);
 });
