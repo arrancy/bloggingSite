@@ -65,9 +65,7 @@ export default function Signin() {
           onClick={
             isPending
               ? () => null
-              : async () => {
-                  signinMutation.mutate(signinInput);
-                }
+              : async () => signinMutation.mutate(signinInput)
           }
           label={
             isPending ? (

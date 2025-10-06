@@ -14,8 +14,8 @@ function App() {
   const queryClient = new QueryClient();
   return (
     <>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
+      <BrowserRouter>
+        <QueryClientProvider client={queryClient}>
           <Suspense fallback={<LoaderPage></LoaderPage>}>
             <Routes>
               <Route path="/" element={<LandingPage></LandingPage>}></Route>
@@ -33,8 +33,8 @@ function App() {
               <Route path="/blog" element={<BlogPage></BlogPage>}></Route>
             </Routes>
           </Suspense>
-        </BrowserRouter>
-      </QueryClientProvider>
+        </QueryClientProvider>
+      </BrowserRouter>
     </>
   );
 }
