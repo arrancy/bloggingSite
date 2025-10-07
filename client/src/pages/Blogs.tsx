@@ -11,15 +11,13 @@ import axios from "axios";
 import { ErrorPopup } from "../components/ErrorPopup";
 import { useLogoutModalState } from "../store/logoutModalState";
 import { LogoutModaL } from "../components/LogoutModal";
-
-// import { useQuery } from "@tanstack/react-query";
-// import { nav } from "motion/react-client";
+import { LoadingSpinner } from "../components/LoadingSpinner";
 
 export default function Blogs() {
   const { isChecking, isLoggedIn } = useAuthentication();
   const { errorMessage, setErrorMessage } = useErrorState();
   const { isLogoutModalActive } = useLogoutModalState();
-  const { isPending, isError, isSuccess, data, error } = useQuery({
+  const { isError, isSuccess, data, error, isPending } = useQuery({
     queryKey: ["get-all-blogs"],
     queryFn: async () => {
       const response = await api.get("/blog/allBlogs");
@@ -52,7 +50,7 @@ export default function Blogs() {
       }
     }
   }, [handleError, error, isError]);
-  return isChecking || isPending ? (
+  return isChecking ? (
     <LoaderPage />
   ) : isLoggedIn && isSuccess ? (
     <>
@@ -66,22 +64,26 @@ export default function Blogs() {
           Blogs.
         </div>
         <div className="   mx-auto">
-          {data.allBlogs.map(
-            (
-              blog: {
-                title: string;
-                content: string;
-                id: number;
-                isDraft: boolean;
-              },
-              index: number
-            ) => (
-              <BlogButton
-                heading={blog.title}
-                id={blog.id}
-                animationDelay={0.8 + 0.4 * index}
-                isDraft={blog.isDraft}
-              ></BlogButton>
+          {isPending ? (
+            <LoadingSpinner></LoadingSpinner>
+          ) : (
+            data.allBlogs.map(
+              (
+                blog: {
+                  title: string;
+                  content: string;
+                  id: number;
+                  isDraft: boolean;
+                },
+                index: number
+              ) => (
+                <BlogButton
+                  heading={blog.title}
+                  id={blog.id}
+                  animationDelay={0.8 + 0.4 * index}
+                  isDraft={blog.isDraft}
+                ></BlogButton>
+              )
             )
           )}
         </div>
@@ -98,9 +100,11 @@ export default function Blogs() {
         </div>
       </div>
     </>
-  ) : !isChecking && !isLoggedIn ? (
+  ) : !isLoggedIn ? (
     <Navigate to="/signin"></Navigate>
   ) : (
     <LoaderPage></LoaderPage>
   );
 }
+
+// isPending is true initially , if cached data isn't there or of course if query attempt hasn't been finished , even if the query is disabled like how isLoggedIn is doing here.

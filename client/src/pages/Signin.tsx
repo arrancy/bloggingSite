@@ -32,7 +32,7 @@ export default function Signin() {
       return response;
     },
     onSuccess: (data) => {
-      if (data.statusText === "OK") {
+      if (data.status === 200) {
         navigate("/blogs");
       }
     },
